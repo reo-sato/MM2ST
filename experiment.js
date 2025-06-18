@@ -1,4 +1,3 @@
-// JavaScript source code
 let total_reward = 0;
 let total_points = 0;
 
@@ -42,6 +41,8 @@ const timeline = [];
 
 for (let block = 0; block < num_trials / trials_per_block; block++) {
   const block_timeline = [];
+
+  // ランダムに memory を挿入（ただし最初の2試行以降に）
   const insert_index = Math.floor(Math.random() * (trials_per_block - 2)) + 2;
 
   for (let j = 0; j < trials_per_block; j++) {
@@ -57,14 +58,8 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
         data.choice_stage1 = data.response === 'f' ? 0 : 1;
         const common = Math.random() < transition_prob;
         const transition = common ? 'common' : 'rare';
-        let state2;
-        if (data.choice_stage1 === 0) {
-          state2 = common ? 0 : 1;
-        } else {
-          state2 = common ? 1 : 0;
-        }
         data.transition = transition;
-        data.state2 = state2;
+        data.state2 = (data.choice_stage1 === 0 ? (common ? 0 : 1) : (common ? 1 : 0));
       }
     };
 
@@ -72,20 +67,15 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function () {
         const last_data = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0];
-        const state = (last_data && last_data.state2 !== undefined) ? last_data.state2 : 0;
-        const symbols = [
-          ['🔵', '🟡'],
-          ['🟢', '🟣']
-        ];
-        const left = symbols[state][0];
-        const right = symbols[state][1];
-        return `<p>ステージ2 - 状態 ${state}</p><div style="font-size: 80px;">${left}　　　${right}</div><p>左: Fキー | 右: Jキー</p>`;
+        const state = last_data?.state2 ?? 0;
+        const symbols = [['🔵', '🟡'], ['🟢', '🟣']];
+        return `<p>ステージ2 - 状態 ${state}</p><div style="font-size: 80px;">${symbols[state][0]}　　　${symbols[state][1]}</div><p>左: Fキー | 右: Jキー</p>`;
       },
       choices: ['f', 'j'],
       data: { stage: 2, trial: i + 1 },
       on_finish: function (data) {
         const last_data = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0];
-        const state = (last_data && last_data.state2 !== undefined) ? last_data.state2 : 0;
+        const state = last_data?.state2 ?? 0;
         const choice = data.response === 'f' ? 0 : 1;
         const reward_prob = reward_probs[`state${state}`][choice];
         const reward = Math.random() < reward_prob ? 1 : 0;
@@ -99,49 +89,47 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
     const feedback = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function () {
-        const last = jsPsych.data.get().last(1).values()[0];
-        const reward = last && last.reward !== undefined ? last.reward : 0;
+        const reward = jsPsych.data.get().last(1).values()[0]?.reward ?? 0;
         return reward ? "<p>💰報酬を得ました！</p>" : "<p>🙁報酬はありません</p>";
       },
       choices: ['f', 'j']
     };
 
+    block_timeline.push(stage1, stage2, feedback);
+
     if (j === insert_index) {
       const memory_trial = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: function () {
-          const recent = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0];
           return `<p>記憶テスト：直前のステージ1で選択したのは？</p><div style="font-size: 80px;">🔺　　　🔶</div><p>左: Fキー | 右: Jキー</p>`;
         },
         choices: ['f', 'j'],
         data: { stage: 'memory' },
         on_finish: function (data) {
-          const actual = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0];
+          const last = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0];
           const response = data.response === 'f' ? 0 : 1;
-          data.memory_correct = actual && actual.choice_stage1 !== undefined ? actual.choice_stage1 === response : false;
           data.memory_response = response;
+          data.memory_correct = last?.choice_stage1 === response;
         }
       };
 
       const gamble = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus: `<p>記憶の正しさにポイントを賭けますか？</p><div style="margin-top: 30px;">はい: Yキー</div><div style="margin-top: 10px;">いいえ: Nキー</div>`,
+        stimulus: `<p>記憶の正しさにポイントを賭けますか？</p><div style="margin-top: 40px;">はい: Yキー</div><div style="margin-top: 20px;">いいえ: Nキー</div>`,
         choices: ['y', 'n'],
         data: { stage: 'gamble' },
         on_finish: function (data) {
-          const memory_data = jsPsych.data.get().filter({ stage: 'memory' }).last(1).values()[0];
+          const memory = jsPsych.data.get().filter({ stage: 'memory' }).last(1).values()[0];
           const gamble = data.response === 'y';
-          const won = gamble && memory_data.memory_correct;
+          const win = gamble && memory.memory_correct;
           data.gambled = gamble;
-          data.gamble_win = won;
-          if (won) total_points += 1;
+          data.gamble_win = win;
+          if (win) total_points += 1;
         }
       };
 
       block_timeline.push(memory_trial, gamble);
     }
-
-    block_timeline.push(stage1, stage2, feedback);
   }
 
   timeline.push(...block_timeline);
@@ -153,7 +141,6 @@ jsPsych.data.addProperties({
 
 firebase.auth().signInAnonymously().then(() => {
   const subjectId = getSubjectId();
-
   const jsPsychWithSave = initJsPsych({
     on_finish: function () {
       const data = jsPsych.data.get().json();
@@ -163,16 +150,13 @@ firebase.auth().signInAnonymously().then(() => {
         total_points: total_points,
         data: JSON.parse(data)
       }).then(() => {
-        alert("✅ データがFirebaseに保存されました\n報酬合計: " + total_reward + "\nポイント合計: " + total_points);
+        alert(`✅ データがFirebaseに保存されました\n報酬合計: ${total_reward}\nポイント合計: ${total_points}`);
       }).catch((error) => {
         alert("❌ 保存に失敗: " + error.message);
       });
     }
   });
 
-  jsPsychWithSave.data.addProperties({
-    subject: subjectId
-  });
-
+  jsPsychWithSave.data.addProperties({ subject: subjectId });
   jsPsychWithSave.run(timeline);
 });
