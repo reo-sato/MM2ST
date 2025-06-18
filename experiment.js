@@ -142,5 +142,5 @@ firebase.auth().signInAnonymously().then(() => {
   });
 
   jsPsych.run(timeline);
-});
+
 
