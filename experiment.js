@@ -74,9 +74,12 @@ for (let i = 0; i < num_trials; i++) {
   const stage2 = {
     type: jsPsychHtmlButtonResponse,
     stimulus: function () {
-      const last_data = jsPsych.data.get().last(1).values()[0];
+      // ✅ 修正後（OK）
 const last_data = jsPsych.data.get().last(1).values()[0];
-const state = (last_data && last_data.state2 !== undefined) ? last_data.state2 : 0;
+let state = (last_data && last_data.state2 !== undefined) ? last_data.state2 : 0;
+
+// その後は state を再代入するだけでOK（再定義しない）
+
 
 
 
@@ -92,7 +95,7 @@ const state = (last_data && last_data.state2 !== undefined) ? last_data.state2 :
     data: { stage: 2, trial: i + 1 },
     on_finish: function (data) {
       const last_data = jsPsych.data.get().last(1).values()[0];
-const state = (last_data && last_data.state2 !== undefined) ? last_data.state2 : 0;
+
 
       const choice = data.response;
       const reward_prob = reward_probs[`state${state}`][choice];
