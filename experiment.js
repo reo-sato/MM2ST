@@ -75,7 +75,8 @@ for (let i = 0; i < num_trials; i++) {
     type: jsPsychHtmlButtonResponse,
     stimulus: function () {
       const last_data = jsPsych.data.get().last(1).values()[0];
-const last_data = jsPsych.data.get().last(1).values()[0];
+const state = (last_data && last_data.state2 !== undefined) ? last_data.state2 : 0;
+
 const state = (last_data && last_data.state2 !== undefined) ? last_data.state2 : 0;
 
 
