@@ -94,7 +94,8 @@ for (let i = 0; i < num_trials; i++) {
   const feedback = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: function () {
-      const reward = jsPsych.data.get().last(1).values()[0].reward;
+      const last_data = jsPsych.data.get().last(1).values()[0];
+      const reward = (last_data && last_data.reward !== undefined) ? last_data.reward : 0;
       return reward ? "<p>💰報酬を得ました！</p>" : "<p>🙁報酬はありません</p>";
     },
     choices: ['f', 'j']
@@ -102,19 +103,16 @@ for (let i = 0; i < num_trials; i++) {
 
   timeline.push(stage1, stage2, feedback);
 
-  if ((i + 1) % trials_per_block === 0) {
+  if ((i + 1) % trials_per_block === 0 && i >= 2) {
     const memory_trial = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function () {
         const recent = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0];
-        const choice = recent && recent.choice_stage1 !== undefined ? recent.choice_stage1 : 0;
-        const actual_choice = choice === 0 ? '🔺' : '🔶';
         return `<p>記憶テスト：直前のステージ1で選択したのは？</p><div style="font-size: 80px;">🔺　　　🔶</div><p>左: Fキー | 右: Jキー</p>`;
       },
       choices: ['f', 'j'],
       on_finish: function (data) {
-        const recent = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0];
-        const actual = recent && recent.choice_stage1 !== undefined ? recent.choice_stage1 : 0;
+        const actual = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0]?.choice_stage1;
         const response = data.response === 'f' ? 0 : 1;
         const correct = response === actual;
         data.memory_correct = correct;
