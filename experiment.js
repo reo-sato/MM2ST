@@ -112,6 +112,35 @@ for (let i = 0; i < num_trials; i++) {
 jsPsych.data.addProperties({
   subject: getSubjectId()
 });
+// 被験者IDの取得
+function getSubjectId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("subject") || "unknown";
+}
 
+// Firebase匿名認証 → 実験開始
+firebase.auth().signInAnonymously().then(() => {
+  const subjectId = getSubjectId();
 
-jsPsych.run(timeline);
+  // Firebase保存付き実験終了処理
+  const jsPsych = initJsPsych({
+    on_finish: function () {
+      const data = jsPsych.data.get().json();
+      firebase.database().ref("data/" + subjectId).set({
+        timestamp: Date.now(),
+        data: JSON.parse(data)
+      }).then(() => {
+        alert("✅ データがFirebaseに保存されました");
+      }).catch((error) => {
+        alert("❌ 保存に失敗: " + error.message);
+      });
+    }
+  });
+
+  jsPsych.data.addProperties({
+    subject: subjectId
+  });
+
+  jsPsych.run(timeline);
+});
+
