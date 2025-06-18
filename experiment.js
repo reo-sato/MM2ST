@@ -92,15 +92,15 @@ for (let i = 0; i < num_trials; i++) {
   };
 
   const feedback = {
-    type: jsPsychHtmlKeyboardResponse,
-   stimulus: function () {
-  const last = jsPsych.data.get().last(1).values();
-  const reward = (last.length > 0 && last[0].reward !== undefined) ? last[0].reward : 0;
-  return reward ? "<p>💰報酬を得ました！</p>" : "<p>🙁報酬はありません</p>";
-}
-,
-    choices: ['f', 'j']
-  };
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: function () {
+    const last = jsPsych.data.get().last(1).values();
+    const reward = (last.length > 0 && last[0].reward !== undefined) ? last[0].reward : 0;
+    return reward ? "<p>💰報酬を得ました！</p>" : "<p>🙁報酬はありません</p>";
+  },
+  choices: ['f', 'j']
+};
+
 
   timeline.push(stage1, stage2, feedback);
 
