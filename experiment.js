@@ -104,7 +104,7 @@ for (let i = 0; i < num_trials; i++) {
 
   const feedback = {
     type: jsPsychHtmlButtonResponse,
-    stimulus: function () {
+   stimulus: function () {
   const last_data = jsPsych.data.get().last(1).values()[0];
   const reward = (last_data && last_data.reward !== undefined) ? last_data.reward : 0;
   return reward ? "<p>💰報酬を得ました！</p>" : "<p>🙁報酬はありません</p>";
