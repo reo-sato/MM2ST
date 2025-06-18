@@ -1,11 +1,13 @@
-// JavaScript source code
+// experiment.js
 const jsPsych = initJsPsych({
   on_finish: function () {
-    jsPsych.data.displayData();  // ✅ 実験終了後にデータ表示
+    jsPsych.data.displayData();
   }
 });
 
-const num_trials = 5; // テスト用に5試行にしておく
+const total_trials = 200;
+const block_size = 5;
+const num_blocks = total_trials / block_size;
 const transition_prob = 0.7;
 const step_size = 0.025;
 const reward_bounds = [0.25, 0.75];
@@ -34,121 +36,109 @@ function getSubjectId() {
   return params.get("subject") || "unknown";
 }
 
-function saveData(filename, filedata) {
-  fetch('save_data.php', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ filename: filename, filedata: filedata })
-  }).then(response => {
-    if (!response.ok) {
-      alert("⚠️ データ保存に失敗しました");
-    }
-  });
-}
-
 const timeline = [];
 
-for (let i = 0; i < num_trials; i++) {
-  updateRewardProbs();
+let trial_counter = 1;
+for (let block = 0; block < num_blocks; block++) {
+  for (let i = 0; i < block_size; i++) {
+    updateRewardProbs();
 
-  const stage1 = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: '<p>ステージ1</p><div style="font-size: 80px;">🔺　　　🔶</div>',
-    choices: ['左', '右'],
-    data: { stage: 1, trial: i + 1 },
-    on_finish: function (data) {
-      data.choice_stage1 = data.response;
-      const common = Math.random() < transition_prob;
-      const transition = common ? 'common' : 'rare';
-      let state2;
-      if (data.response === 0) {
-        state2 = common ? 0 : 1;
-      } else {
-        state2 = common ? 1 : 0;
+    const stage1 = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: '<p>ステージ1</p><div style="font-size: 80px;">🔺　　　🔶</div>',
+      choices: ['左', '右'],
+      data: { stage: 1, trial: trial_counter },
+      on_finish: function (data) {
+        data.choice_stage1 = data.response;
+        const common = Math.random() < transition_prob;
+        const transition = common ? 'common' : 'rare';
+        let state2 = (data.response === 0) ? (common ? 0 : 1) : (common ? 1 : 0);
+        data.transition = transition;
+        data.state2 = state2;
       }
-      data.transition = transition;
-      data.state2 = state2;
+    };
+
+    const stage2 = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: function () {
+        const last = jsPsych.data.get().last(1).values()[0];
+        let state = (last && last.state2 !== undefined) ? last.state2 : 0;
+        const symbols = [['🔵', '🟡'], ['🟢', '🟣']];
+        return `<p>ステージ2 - 状態 ${state}</p><div style="font-size: 80px;">${symbols[state][0]}　　　${symbols[state][1]}</div>`;
+      },
+      choices: ['左', '右'],
+      data: { stage: 2, trial: trial_counter },
+      on_finish: function (data) {
+        const last = jsPsych.data.get().last(2).values()[0];
+        const state = (last && last.state2 !== undefined) ? last.state2 : 0;
+        const choice = data.response;
+        const reward_prob = reward_probs[`state${state}`][choice];
+        const reward = Math.random() < reward_prob ? 1 : 0;
+        data.state2 = state;
+        data.choice_stage2 = choice;
+        data.reward = reward;
+      }
+    };
+
+    const feedback = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: function () {
+        const reward = jsPsych.data.get().last(1).values()[0].reward;
+        return reward ? "<p>💰報酬を得ました！</p>" : "<p>🙁報酬はありません</p>";
+      },
+      choices: ['次へ']
+    };
+
+    timeline.push(stage1, stage2, feedback);
+    trial_counter++;
+  }
+
+  const memory_trial = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: '<p>直前のステージ1でどちらを選びましたか？</p>',
+    choices: ['左', '右'],
+    data: { task: 'memory_test' },
+    on_finish: function (data) {
+      const last_stage1 = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0];
+      data.correct_choice = last_stage1.response;
+      data.memory_correct = data.response == data.correct_choice ? 1 : 0;
     }
   };
 
-  const stage2 = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: function () {
-    const last_data = jsPsych.data.get().last(1).values()[0];
-    let state = (last_data && last_data.state2 !== undefined) ? last_data.state2 : 0;
-
-    const symbols = [
-      ['🔵', '🟡'],  // state0
-      ['🟢', '🟣']   // state1
-    ];
-    const left = symbols[state][0];
-    const right = symbols[state][1];
-    return `<p>ステージ2 - 状態 ${state}</p><div style="font-size: 80px;">${left}　　　${right}</div>`;
-  },
-  choices: ['左', '右'],
-  data: { stage: 2, trial: i + 1 },
-  on_finish: function (data) {
-    const last_data = jsPsych.data.get().last(1).values()[0];
-    const state = (last_data && last_data.state2 !== undefined) ? last_data.state2 : 0;
-
-    const choice = data.response;
-    const reward_prob = reward_probs[`state${state}`][choice];
-    const reward = Math.random() < reward_prob ? 1 : 0;
-
-    data.state2 = state;
-    data.choice_stage2 = choice;
-    data.reward = reward;
-  }
-};
-
-
-  const feedback = {
+  const confidence_trial = {
     type: jsPsychHtmlButtonResponse,
-   stimulus: function () {
-  const last_data = jsPsych.data.get().last(1).values()[0];
-  const reward = (last_data && last_data.reward !== undefined) ? last_data.reward : 0;
-  return reward ? "<p>💰報酬を得ました！</p>" : "<p>🙁報酬はありません</p>";
-},
-
-    choices: ['次へ']
+    stimulus: '<p>自信はありますか？</p>',
+    choices: ['ある', 'ない'],
+    data: { task: 'confidence' }
   };
 
-  timeline.push(stage1, stage2, feedback);
+  const gamble_trial = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: '<p>記憶が正しいと信じてポイントを賭けますか？</p>',
+    choices: ['賭ける', '賭けない'],
+    data: { task: 'gamble' }
+  };
+
+  timeline.push(memory_trial, confidence_trial, gamble_trial);
 }
-// 被験者番号を記録する（ここに追加）
+
 jsPsych.data.addProperties({
   subject: getSubjectId()
 });
-// 被験者IDの取得
-function getSubjectId() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("subject") || "unknown";
-}
 
-// Firebase匿名認証 → 実験開始
 firebase.auth().signInAnonymously().then(() => {
   const subjectId = getSubjectId();
-
-  // Firebase保存付き実験終了処理
-  const jsPsych = initJsPsych({
-    on_finish: function () {
-      const data = jsPsych.data.get().json();
-      firebase.database().ref("data/" + subjectId).set({
-        timestamp: Date.now(),
-        data: JSON.parse(data)
-      }).then(() => {
-        alert("✅ データがFirebaseに保存されました");
-      }).catch((error) => {
-        alert("❌ 保存に失敗: " + error.message);
-      });
-    }
-  });
-
-  jsPsych.data.addProperties({
-    subject: subjectId
-  });
-
   jsPsych.run(timeline);
-
-}); // ← この閉じ括弧が **足りていなかった**
+  jsPsych.getDisplayElement().addEventListener("jspsych-complete", function () {
+    const data = jsPsych.data.get().json();
+    firebase.database().ref("data/" + subjectId).set({
+      timestamp: Date.now(),
+      data: JSON.parse(data)
+    }).then(() => {
+      alert("✅ データがFirebaseに保存されました");
+    }).catch((error) => {
+      alert("❌ 保存に失敗: " + error.message);
+    });
+  });
+});
 
