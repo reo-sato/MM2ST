@@ -1,33 +1,39 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>Two-Step Task</title>
+
+  <!-- jsPsych -->
   <link rel="stylesheet" href="jspsych/css/jspsych.css">
   <script src="jspsych/jspsych.js"></script>
   <script src="jspsych/plugins/plugin-html-button-response.js"></script>
-  <script src="experiment.js">
-    
 
-firebase.initializeApp(firebaseConfig);
-</script>
+  <!-- Firebase SDK（compat版） -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase 設定（あなたのプロジェクトのもの）
+    const firebaseConfig = {
+      apiKey: "AIzaSyAfrRcY_LHNmvubksgSqOHfZAgCc3sMiJw",
+      authDomain: "jspsych-experiment.firebaseapp.com",
+      databaseURL: "https://jspsych-experiment-default-rtdb.firebaseio.com",
+      projectId: "jspsych-experiment",
+      storageBucket: "jspsych-experiment.firebasestorage.app",
+      messagingSenderId: "577739836419",
+      appId: "1:577739836419:web:e09d9ecb5aeceb9a335236"
+    };
+
+    // Firebase 初期化
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <!-- 実験コード -->
+  <script src="experiment.js"></script>
 </head>
 <body>
-  <!-- Firebase SDK (compat版) -->
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-
-<script>
- // Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAfrRcY_LHNmvubksgSqOHfZAgCc3sMiJw",
-  authDomain: "jspsych-experiment.firebaseapp.com",
-  databaseURL: "https://jspsych-experiment-default-rtdb.firebaseio.com",
-  projectId: "jspsych-experiment",
-  storageBucket: "jspsych-experiment.firebasestorage.app",
-  messagingSenderId: "577739836419",
-  appId: "1:577739836419:web:e09d9ecb5aeceb9a335236"
-};
 </body>
 </html>
+
