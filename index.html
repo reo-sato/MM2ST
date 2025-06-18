@@ -7,7 +7,13 @@
   <script src="jspsych/jspsych.js"></script>
   <script src="jspsych/plugins/plugin-html-button-response.js"></script>
   <script src="experiment.js">
-    <!-- Firebase SDK (compat版) -->
+    
+
+firebase.initializeApp(firebaseConfig);
+</script>
+</head>
+<body>
+  <!-- Firebase SDK (compat版) -->
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
@@ -23,9 +29,5 @@ const firebaseConfig = {
   messagingSenderId: "577739836419",
   appId: "1:577739836419:web:e09d9ecb5aeceb9a335236"
 };
-
-firebase.initializeApp(firebaseConfig);
-</script>
-</head>
-<body></body>
+</body>
 </html>
