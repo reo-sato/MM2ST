@@ -75,7 +75,9 @@ for (let i = 0; i < num_trials; i++) {
     type: jsPsychHtmlButtonResponse,
     stimulus: function () {
       const last_data = jsPsych.data.get().last(1).values()[0];
+const last_data = jsPsych.data.get().last(1).values()[0];
 const state = (last_data && last_data.state2 !== undefined) ? last_data.state2 : 0;
+
 
       const symbols = [
         ['🔵', '🟡'],  // state0
@@ -88,7 +90,9 @@ const state = (last_data && last_data.state2 !== undefined) ? last_data.state2 :
     choices: ['左', '右'],
     data: { stage: 2, trial: i + 1 },
     on_finish: function (data) {
-      const state = jsPsych.data.get().last(2).values()[0].state2;
+      const last_data = jsPsych.data.get().last(1).values()[0];
+const state = (last_data && last_data.state2 !== undefined) ? last_data.state2 : 0;
+
       const choice = data.response;
       const reward_prob = reward_probs[`state${state}`][choice];
       const reward = Math.random() < reward_prob ? 1 : 0;
