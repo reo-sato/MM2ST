@@ -146,7 +146,7 @@ firebase.auth().signInAnonymously().then(() => {
     subject: subjectId
   });
 
-    jsPsych.run(timeline);
+  jsPsych.run(timeline);
 
-});  // firebase.auth().signInAnonymously().then(... の閉じ括弧
+}); // ← この閉じ括弧が **足りていなかった**
 
