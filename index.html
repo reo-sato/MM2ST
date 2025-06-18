@@ -13,17 +13,19 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
 <script>
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "XXXXXXXXXXXX",
-    appId: "1:XXXXXXXXXXXX:web:XXXXXXXXXXXX"
-  };
+ // Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAfrRcY_LHNmvubksgSqOHfZAgCc3sMiJw",
+  authDomain: "jspsych-experiment.firebaseapp.com",
+  databaseURL: "https://jspsych-experiment-default-rtdb.firebaseio.com",
+  projectId: "jspsych-experiment",
+  storageBucket: "jspsych-experiment.firebasestorage.app",
+  messagingSenderId: "577739836419",
+  appId: "1:577739836419:web:e09d9ecb5aeceb9a335236"
+};
 
-  firebase.initializeApp(firebaseConfig);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 </script>
 </head>
 <body></body>
