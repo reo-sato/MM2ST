@@ -141,6 +141,8 @@ firebase.auth().signInAnonymously().then(() => {
     subject: subjectId
   });
 
-  jsPsych.run(timeline);
+    jsPsych.run(timeline);
+
+});  // firebase.auth().signInAnonymously().then(... の閉じ括弧
 
 
