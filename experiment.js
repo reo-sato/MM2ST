@@ -1,4 +1,3 @@
-// JavaScript source code
 let total_reward = 0;
 let total_points = 0;
 
@@ -8,9 +7,8 @@ const jsPsych = initJsPsych({
   }
 });
 
-const num_blocks = 40;
+const num_trials = 200;
 const trials_per_block = 5;
-const num_trials = num_blocks * trials_per_block;
 const transition_prob = 0.7;
 const step_size = 0.025;
 const reward_bounds = [0.25, 0.75];
@@ -40,31 +38,31 @@ function getSubjectId() {
 }
 
 const timeline = [];
+let recent_stage1_data = [];  // 記憶賭け用に stage1 の選択肢履歴を保持
 
-for (let b = 0; b < num_blocks; b++) {
-  const memory_pos = 2 + Math.floor(Math.random() * (trials_per_block - 2));
+for (let block = 0; block < num_trials / trials_per_block; block++) {
+  const block_trials = [];
+  const gamble_index = Math.floor(Math.random() * (trials_per_block - 2)) + 2; // index: 2〜4 のどこか
 
-  for (let t = 0; t < trials_per_block; t++) {
-    const i = b * trials_per_block + t;
+  for (let i = 0; i < trials_per_block; i++) {
+    const global_trial_index = block * trials_per_block + i;
+
     updateRewardProbs();
 
     const stage1 = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: '<p>ステージ1</p><div style="font-size: 80px;">🔺　　　🔶</div><p>左: Fキー | 右: Jキー</p>',
       choices: ['f', 'j'],
-      data: { stage: 1, trial: i + 1 },
+      data: { stage: 1, trial: global_trial_index + 1 },
       on_finish: function (data) {
         data.choice_stage1 = data.response === 'f' ? 0 : 1;
         const common = Math.random() < transition_prob;
         const transition = common ? 'common' : 'rare';
-        let state2;
-        if (data.choice_stage1 === 0) {
-          state2 = common ? 0 : 1;
-        } else {
-          state2 = common ? 1 : 0;
-        }
+        let state2 = data.choice_stage1 === 0 ? (common ? 0 : 1) : (common ? 1 : 0);
         data.transition = transition;
         data.state2 = state2;
+        recent_stage1_data.push({ choice_stage1: data.choice_stage1 });
+        if (recent_stage1_data.length > 10) recent_stage1_data.shift();  // 保持数制限
       }
     };
 
@@ -73,16 +71,13 @@ for (let b = 0; b < num_blocks; b++) {
       stimulus: function () {
         const last_data = jsPsych.data.get().last(1).values()[0];
         const state = (last_data && last_data.state2 !== undefined) ? last_data.state2 : 0;
-        const symbols = [
-          ['🔵', '🟡'],
-          ['🟢', '🟣']
-        ];
-        const left = symbols[state][0];
-        const right = symbols[state][1];
-        return `<p>ステージ2 - 状態 ${state}</p><div style="font-size: 80px;">${left}　　　${right}</div><p>左: Fキー | 右: Jキー</p>`;
+        const symbols = [['🔵', '🟡'], ['🟢', '🟣']];
+        return `<p>ステージ2 - 状態 ${state}</p>
+                <div style="font-size: 80px;">${symbols[state][0]}　　　${symbols[state][1]}</div>
+                <p>左: Fキー | 右: Jキー</p>`;
       },
       choices: ['f', 'j'],
-      data: { stage: 2, trial: i + 1 },
+      data: { stage: 2, trial: global_trial_index + 1 },
       on_finish: function (data) {
         const last_data = jsPsych.data.get().last(2).values()[0];
         const state = (last_data && last_data.state2 !== undefined) ? last_data.state2 : 0;
@@ -105,47 +100,52 @@ for (let b = 0; b < num_blocks; b++) {
       choices: ['f', 'j']
     };
 
-    timeline.push(stage1, stage2, feedback);
+    block_trials.push(stage1, stage2, feedback);
 
-    if (t === memory_pos) {
+    // 記憶賭け挿入タイミングならここで追加
+    if (i === gamble_index) {
       const memory_trial = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: function () {
-          const recent = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0];
-          return `<p>記憶テスト：直前のステージ1で選択したのは？</p><div style=\"font-size: 80px;\">🔺　　　🔶</div><p>左: Fキー | 右: Jキー</p>`;
+          const recent = recent_stage1_data[recent_stage1_data.length - 1];
+          if (!recent) return "<p>記憶データが見つかりません。</p>";
+          return `<p>記憶テスト：直前のステージ1で選択したのは？</p>
+                  <div style="font-size: 80px;">🔺　　　🔶</div>
+                  <p>左: Fキー | 右: Jキー</p>`;
         },
         choices: ['f', 'j'],
         on_finish: function (data) {
-          const actual = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0].choice_stage1;
+          const recent = recent_stage1_data[recent_stage1_data.length - 1];
           const response = data.response === 'f' ? 0 : 1;
-          const correct = response === actual;
-          data.memory_correct = correct;
           data.memory_response = response;
+          data.memory_correct = (recent && response === recent.choice_stage1);
         }
       };
 
       const gamble = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus: `<p>記憶の正しさにポイントを賭けますか？</p><p style=\"font-size: 24px;\">Yキー: はい</p><p style=\"font-size: 24px;\">Bキー: いいえ</p>`,
-        choices: ['y', 'b'],
+        stimulus: `<p>記憶の正しさにポイントを賭けますか？</p>
+                   <p style="font-size:30px;">はい：Yキー</p>
+                   <p style="font-size:30px;">いいえ：Nキー</p>`,
+        choices: ['y', 'n'],
         on_finish: function (data) {
-          const memory_data = jsPsych.data.get().last(2).values()[0];
+          const memory = jsPsych.data.get().last(2).values()[0];
           const gamble = data.response === 'y';
-          const won = gamble && memory_data.memory_correct;
+          const won = gamble && memory.memory_correct;
           data.gambled = gamble;
           data.gamble_win = won;
           if (won) total_points += 1;
         }
       };
 
-      timeline.push(memory_trial, gamble);
+      block_trials.push(memory_trial, gamble);
     }
   }
+
+  timeline.push(...block_trials);
 }
 
-jsPsych.data.addProperties({
-  subject: getSubjectId()
-});
+jsPsych.data.addProperties({ subject: getSubjectId() });
 
 firebase.auth().signInAnonymously().then(() => {
   const subjectId = getSubjectId();
@@ -166,9 +166,6 @@ firebase.auth().signInAnonymously().then(() => {
     }
   });
 
-  jsPsych.data.addProperties({
-    subject: subjectId
-  });
-
+  jsPsych.data.addProperties({ subject: subjectId });
   jsPsych.run(timeline);
 });
