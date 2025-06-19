@@ -125,14 +125,15 @@ const instructions = [
   },
   // 記憶賭けテスト説明
   {
-    type: jsPsychHtmlButtonResponse,
+    type: jsPsychHtmlKeyboardResponse,
     stimulus: `
       <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:left; margin-bottom:40px;">
         <p>また、時折挟まる記憶テストでは直近のステージ1で選択したシンボルを思い出してもらいます。</p>
         <p>回答にポイントを賭けると、正解→+1、不正解→-1。賭けないと±0です。</p>
       </div>
     `,
-    choices: ['次へ']
+    choices: [' '],
+prompt: `<div style="font-size:${TEXT_SIZE}"><p>スペースキーを押して続行</p></div>`
   },
   // 2. ステージ1 操作説明と練習（Fキーのみ）
   {
@@ -158,14 +159,15 @@ const instructions = [
   },
   // 練習開始
   {
-    type: jsPsychHtmlButtonResponse,
+    type: jsPsychHtmlKeyboardResponse,
     stimulus: `
       <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center; margin-bottom:40px;">
 <p>賭けに対しては報酬のフィードバックは行われず、最終的な点数にのみ反映されます。</p>
         <p>それでは、練習を始めます！練習中の報酬は本試験に影響しません。</p>
       </div>
     `,
-    choices: ['開始']
+    choices: [' '],
+prompt: `<div style="font-size:${TEXT_SIZE}"><p>スペースキーを押して続行</p></div>`
   }
 ];
 
