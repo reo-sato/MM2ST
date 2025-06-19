@@ -51,22 +51,22 @@ const baseline = {
 
 // 1. インストラクション（課題構造の説明）
 const instructions = [
-  { type: jsPsychHtmlKeyboardResponse, stimulus: '<div style="font-size:${TEXT_SIZE}"><p>ようこそ！このタスクは、一試行当たり2段階の選択と、時折記憶テストがあります。次へ進むにはスペースキーを押してください。</p></div>', choices: [' '] },
-  { type: jsPsychHtmlButtonResponse, stimulus: <div style="font-size:${TEXT_SIZE}"><p>ステージ1では、2つのシンボルのうちどちらかを、左ならばｆ、右ならばｊのキーを押して選択します。ここでは、試しにｆを押してみてください。 <p>ステージ1</p>
+  { type: jsPsychHtmlKeyboardResponse, stimulus: `<div style="font-size:${TEXT_SIZE}"><p>ようこそ！このタスクは、一試行当たり2段階の選択と、時折記憶テストがあります。次へ進むにはスペースキーを押してください。</p></div>`, choices: [' '] },`
+  { type: jsPsychHtmlButtonResponse, stimulus: `<div style="font-size:${TEXT_SIZE}"><p>ステージ1では、2つのシンボルのうちどちらかを、左ならばｆ、右ならばｊのキーを押して選択します。ここでは、試しにｆを押してみてください。 <p>ステージ1</p>
         <div style="font-size:${SYMBOL_SIZE}; margin:20px 0; display:flex; justify-content:center;">
           <span style="margin:0 20px;">🔴</span><span style="margin:0 20px;">🔵</span>
        
-        <p>左: Fキー | 右: Jキー</p></p></div>, choices: ['f'] },
-  { type: jsPsychHtmlButtonResponse, stimulus: <div style="font-size:${TEXT_SIZE}"><p>ステージ2でも、2つのシンボルから一方を選択します。それぞれのシンボルに対して報酬の1ポイントがどのような確率で得られるかは決まっており、この確率はゆっくりと変化していくため、今現在どのシンボルを選択することが報酬獲得につながりやすいのかを学習していく必要があります。 <p>ステージ1</p>
+        <p>左: Fキー | 右: Jキー</p></p></div>`, choices: ['f'] },
+  { type: jsPsychHtmlButtonResponse, stimulus: `<div style="font-size:${TEXT_SIZE}"><p>ステージ2でも、2つのシンボルから一方を選択します。それぞれのシンボルに対して報酬の1ポイントがどのような確率で得られるかは決まっており、この確率はゆっくりと変化していくため、今現在どのシンボルを選択することが報酬獲得につながりやすいのかを学習していく必要があります。 <p>ステージ1</p>
         <div style="font-size:${SYMBOL_SIZE}; margin:20px 0; display:flex; justify-content:center;">
           <span style="margin:0 20px;">🟢</span><span style="margin:0 20px;">🟡</span>
-        </div>
+        </div>`
         <p>左: Fキー | 右: Jキー</p></p></div>, choices: ['f','j'] },
-  { type: jsPsychHtmlButtonResponse, stimulus: <div style="font-size:${TEXT_SIZE}"><p>報酬の有無が提示された後、ステージ1に戻ります。もう一度ｆを押してみてください。</p></div>, choices: ['f'] },
-  { type: jsPsychHtmlButtonResponse, stimulus: <div style="font-size:${TEXT_SIZE}"><p>実は、ステージ2では、ステージ1の選択に応じて2対のシンボルのうち1対が提示されます。どのシンボルの組が提示されるかは確率的に決まりますが、ステージ１の選択によって、どのシンボルの組が提示されやすいかが決まります。</p></div>, choices: ['f'], ['j']},
+  { type: jsPsychHtmlButtonResponse, stimulus: `<div style="font-size:${TEXT_SIZE}"><p>報酬の有無が提示された後、ステージ1に戻ります。もう一度ｆを押してみてください。</p></div>`, choices: ['f'] },
+  { type: jsPsychHtmlButtonResponse, stimulus:`<div style="font-size:${TEXT_SIZE}"><p>実は、ステージ2では、ステージ1の選択に応じて2対のシンボルのうち1対が提示されます。どのシンボルの組が提示されるかは確率的に決まりますが、ステージ１の選択によって、どのシンボルの組が提示されやすいかが決まります。</p></div>`, choices: ['f'], ['j']},
   
-  { type: jsPsychHtmlButtonResponse, stimulus: <div style="font-size:${TEXT_SIZE}"><p>また、時折挟まる記憶テストでは、直近のステージ1でどのシンボルを選択したか思い出してもらいます。さらに、その回答に対して通常試行と共通のポイントを賭けることができます。賭けた場合には、正解→+1ポイント　不正解→-1ポイントとなり、賭けなかった場合には正解→0ポイント　不正解→0ポイントとなります。</p></div>, choices: ['次へ'] },
-  { type: jsPsychHtmlButtonResponse, stimulus: <div style="font-size:${TEXT_SIZE}"><p>それでは、練習を始めます！練習中の報酬は本報酬に影響しません。</p></div>, choices: ['開始'] }
+  { type: jsPsychHtmlButtonResponse, stimulus: `<div style="font-size:${TEXT_SIZE}"><p>また、時折挟まる記憶テストでは、直近のステージ1でどのシンボルを選択したか思い出してもらいます。さらに、その回答に対して通常試行と共通のポイントを賭けることができます。賭けた場合には、正解→+1ポイント　不正解→-1ポイントとなり、賭けなかった場合には正解→0ポイント　不正解→0ポイントとなります。</p></div>`, choices: ['次へ'] },
+  { type: jsPsychHtmlButtonResponse, stimulus: `<div style="font-size:${TEXT_SIZE}"><p>それでは、練習を始めます！練習中の報酬は本報酬に影響しません。</p></div>`, choices: ['開始'] }
 ];
 ];
 timeline.push(...instructions);
