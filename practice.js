@@ -204,7 +204,7 @@ for (let j = 0; j < practice_trials; j++) {
       const state = prev.state2 || 0;
       const symbols_desc = '';
       const symbols = [['🟢','🟡'], ['🟣','🟠']];
-      return `<div style="font-size:${TEXT_SIZE}"><p>ステージ2 - 状態 ${state+1}</p>` +
+      return `<div style="font-size:${TEXT_SIZE}"><p>ステージ2 - 組み合わせ ${state+1}</p>` +
                `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">${symbols[state][0]}　　${symbols[state][1]}</div>` +
                `<p>左: Fキー | 右: Jキー</p></div>`;
     },
