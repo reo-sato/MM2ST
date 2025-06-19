@@ -134,6 +134,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       prompt: '<p>スペースキーを押して続行</p>',
       data: { stage: 'pre_memory', trial: i + 1 }
     };
+
     const memory_trial = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: '<p>記憶テスト：直前のステージ1で選択したのは？</p>' +
@@ -146,8 +147,10 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
         const resp = data.response === 'f' ? 0 : 1;
         data.memory_response = resp;
         data.memory_correct = (actual === resp);
+        console.log(`DEBUG memory trial=${data.trial} correct=${data.memory_correct}`);
       }
     };
+
     const gamble = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: '<p>記憶の正しさにポイントを賭けますか？</p>' +
@@ -156,12 +159,14 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       choices: ['y','n'],
       data: { stage: 'gamble', trial: i + 1 },
       on_finish: function(data) {
-        const mem = jsPsych.data.get().filter({ stage: 'memory', trial: i + 1 }).last(1).values()[0];
+        // stage='memory' の最後の試行を取得
+        const mem = jsPsych.data.get().filter({ stage: 'memory' }).last(1).values()[0] || {};
         const gambleFlag = data.response === 'y';
         const win = gambleFlag && mem.memory_correct;
         data.gambled = gambleFlag;
         data.gamble_win = win;
         if (win) total_points++;
+        console.log(`DEBUG gamble trial=${data.trial} gambled=${data.gambled} win=${data.gamble_win}`);
       }
     };
 
