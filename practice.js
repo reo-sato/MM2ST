@@ -177,15 +177,11 @@ for (let j = 0; j < practice_trials; j++) {
   // --- ステージ1 ---
   timeline.push({
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: `
-      <div style="font-size:${TEXT_SIZE}">
-        <p>ステージ1</p>
-        <div style="font-size:${SYMBOL_SIZE}; margin:20px 0; display:flex; justify-content:center;">
-          <span style="margin:0 20px;">🔴</span><span style="margin:0 20px;">🔵</span>
-        </div>
-        <p>左: Fキー | 右: Jキー</p>
-      </div>
-    `,
+    stimulus: 
+`<div style="font-size:${TEXT_SIZE}"><p>ステージ1</p>` +
+                `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔴　　🔵</div>` +
+                `<p>左: Fキー | 右: Jキー</p></div>`
+,
     choices: ['f', 'j'],
     data: { phase: 'practice', stage: 1, trial: j+1 },
     on_finish: function(data) {
@@ -204,17 +200,9 @@ for (let j = 0; j < practice_trials; j++) {
       const state = prev.state2 || 0;
       const symbols_desc = '';
       const symbols = [['🟢','🟡'], ['🟣','🟠']];
-      return `
-        <div style="font-size:${TEXT_SIZE}">
-          ${symbols_desc}
-          <p>ステージ2 - 状態 ${state}</p>
-          <div style="font-size:${SYMBOL_SIZE}; margin:20px 0; display:flex; justify-content:center;">
-            <span style="margin:0 20px;">${symbols[state][0]}</span>
-            <span style="margin:0 20px;">${symbols[state][1]}</span>
-          </div>
-          <p>左: Fキー | 右: Jキー</p>
-        </div>
-      `;
+      return `<div style="font-size:${TEXT_SIZE}"><p>ステージ2 - 状態 ${state}</p>` +
+               `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">${symbols[state][0]}　　${symbols[state][1]}</div>` +
+               `<p>左: Fキー | 右: Jキー</p></div>`;
     },
     choices: ['f', 'j'],
     data: { phase: 'practice', stage: 2, trial: j+1 },
@@ -258,16 +246,11 @@ for (let j = 0; j < practice_trials; j++) {
     // 記憶テスト
     timeline.push({
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: `
-        <div style="font-size:${TEXT_SIZE}">
-          <p>記憶テスト：直前のステージ1で選択したのは？</p>
-          <div style="font-size:${SYMBOL_SIZE};margin:20px 0;display:flex;justify-content:center;">
-            <span style="margin:0 20px;">🔴</span>
-            <span style="margin:0 20px;">🔵</span>
-          </div>
-          <p>左: Fキー | 右: Jキー</p>
-        </div>
-      `,
+      stimulus:
+`<div style="font-size:${TEXT_SIZE}"><p>記憶テスト：直前のステージ1で選択したのは？</p>` +
+                `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔴　　🔵</div>` +
+                `<p>左: Fキー | 右: Jキー</p></div>`
+,
       choices: ['f','j'],
       data: { phase:'practice', stage:'memory', trial:j+1 },
       on_finish: function(data) {
@@ -283,7 +266,7 @@ for (let j = 0; j < practice_trials; j++) {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: `
         <div style="font-size:${TEXT_SIZE}">
-          <p>記憶の正しさにポイントを賭けますか？</p>
+          <p>先ほどの回答にポイントを賭けますか？</p>
           <p>Y: はい　 N: いいえ</p>
         </div>
       `,
