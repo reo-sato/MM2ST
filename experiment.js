@@ -132,7 +132,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
                 '<p>直前のステージ1で選択したシンボルを思い出してください。</p>',
       choices: [' '],
       prompt: '<p>スペースキーを押して続行</p>',
-      data: { stage: 'pre_memory' }
+      data: { stage: 'pre_memory', trial: i + 1 }
     };
     const memory_trial = {
       type: jsPsychHtmlKeyboardResponse,
@@ -140,7 +140,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
                 '<div style="font-size:80px;">🔺　　　🔶</div>' +
                 '<p>左: Fキー | 右: Jキー</p>',
       choices: ['f','j'],
-      data: { stage: 'memory' },
+      data: { stage: 'memory', trial: i + 1 },
       on_finish: function(data) {
         const actual = jsPsych.data.get().filter({ stage: 1, trial: i + 1 }).last(1).values()[0].choice_stage1;
         const resp = data.response === 'f' ? 0 : 1;
@@ -154,7 +154,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
                 '<div style="margin-top:40px;">Y: はい</div>' +
                 '<div style="margin-top:20px;">N: いいえ</div>',
       choices: ['y','n'],
-      data: { stage: 'gamble' },
+      data: { stage: 'gamble', trial: i + 1 },
       on_finish: function(data) {
         const mem = jsPsych.data.get().filter({ stage: 'memory', trial: i + 1 }).last(1).values()[0];
         const gambleFlag = data.response === 'y';
@@ -172,7 +172,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
                 '<p>通常試行に戻ります。</p>',
       choices: [' '],
       prompt: '<p>スペースキーを押して続行してください。</p>',
-      data: { stage: 'post_memory' }
+      data: { stage: 'post_memory', trial: i + 1 }
     };
 
     // ==== タイムラインへの追加 ====
