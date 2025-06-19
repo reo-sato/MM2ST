@@ -230,7 +230,8 @@ for (let j = 0; j < practice_trials; j++) {
       const msg = last.reward ? '💰 報酬を得ました！' : '🙁 報酬はありません';
       return `<div style="font-size:${TEXT_SIZE}"><p>${msg}</p></div>`;
     },
-    choices: [' ']
+    choices: [' '],
+prompt: `<div style="font-size:${TEXT_SIZE}"><p>スペースキーを押して続行</p></div>`
   });
 
   // --- 記憶テスト前案内 ---
