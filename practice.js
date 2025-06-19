@@ -70,13 +70,9 @@ const instructions = [
         <p>ステージ1では、2つのシンボルのうちどちらかを、左ならば F、右ならば J のキーを押して選択します。</p>
         <p>ここでは試しに F を押してみてください。</p>
       </div>
-      <div style="display:flex; justify-content:center; margin-bottom:40px;">
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔴</span>
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔵</span>
-      </div>
-      <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:40px;">
-        <p>左: Fキー | 右: Jキー</p>
-      </div>
+       `<div style="font-size:${TEXT_SIZE}"><p>ステージ1</p>` +
+                `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔺　　🔶</div>` +
+                `<p>左: Fキー | 右: Jキー</p></div>`
     `,
     choices: ['f']
   },
