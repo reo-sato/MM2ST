@@ -1,12 +1,11 @@
-// JavaScript source code with single jsPsych instance
+// experiment.js
 
 let total_reward = 0;
 let total_points = 0;
 
-// Initialize jsPsych once, with Firebase save in on_finish
+// jsPsych 初期化（on_finish で Firebase に保存）
 const jsPsych = initJsPsych({
   on_finish: function () {
-    // Save to Firebase
     const subjectId = getSubjectId();
     const jsonData = jsPsych.data.get().json();
     firebase.database().ref('data/' + subjectId).set({
@@ -66,7 +65,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
     const i = block * trials_per_block + j;
     updateRewardProbs();
 
-    // Stage 1
+    // --- Stage 1 ---
     const stage1 = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: '<p>ステージ1</p>' +
@@ -85,12 +84,13 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       }
     };
 
-    // Stage 2
+    // --- Stage 2 ---
     const stage2 = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function() {
-        const prev = jsPsych.data.get().last(1).values()[0];
-        const state = prev?.state2 ?? 0;
+        // 直前のステージ1データのみを取得
+        const prev = jsPsych.data.get().filter({ stage: 1, trial: i + 1 }).last(1).values()[0];
+        const state = prev.state2;
         console.log(`DEBUG stage2 sees state2=${state}`);
         const symbols = [['🔵','🟡'], ['🟢','🟣']];
         return `<p>ステージ2 - 状態 ${state}</p>` +
@@ -100,8 +100,8 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       choices: ['f','j'],
       data: { stage: 2, trial: i + 1 },
       on_finish: function(data) {
-        const prev = jsPsych.data.get().last(1).values()[0];
-        const state = prev?.state2 ?? 0;
+        const prev = jsPsych.data.get().filter({ stage: 1, trial: i + 1 }).last(1).values()[0];
+        const state = prev.state2;
         const choice = data.response === 'f' ? 0 : 1;
         const rp = reward_probs[`state${state}`][choice];
         const reward = Math.random() < rp ? 1 : 0;
@@ -109,76 +109,80 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
         data.choice_stage2 = choice;
         data.reward = reward;
         total_reward += reward;
-        console.log(`DEBUG stage2 choice=${choice} reward=${reward}`);
+        console.log(`DEBUG stage2 trial=${data.trial} choice=${choice} reward=${reward}`);
       }
     };
 
-    // Feedback requiring space
+    // --- Feedback ---
     const feedback = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function() {
-        const reward = jsPsych.data.get().last(1).values()[0]?.reward ?? 0;
-        return reward ? '<p>💰報酬を得ました！</p>' : '<p>🙁報酬はありません</p>';
+        const last = jsPsych.data.get().last(1).values()[0];
+        return last.reward
+          ? '<p>💰報酬を得ました！</p>'
+          : '<p>🙁報酬はありません</p>';
       },
       choices: [' '],
       prompt: '<p>続行するにはスペースキーを押してください。</p>'
     };
 
-    block_timeline.push(stage1, stage2, feedback);
+    // --- メモリー賭け試行用パーツ ---
+    const pre_memory = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: '<p>次に記憶テストと賭けを行います。</p>' +
+                '<p>直前のステージ1で選択したシンボルを思い出してください。</p>',
+      choices: [' '],
+      prompt: '<p>スペースキーを押して続行</p>',
+      data: { stage: 'pre_memory' }
+    };
 
-    // Pre-memory instruction
+    const memory_trial = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: '<p>記憶テスト：直前のステージ1で選択したのは？</p>' +
+                '<div style="font-size:80px;">🔺　　　🔶</div>' +
+                '<p>左: Fキー | 右: Jキー</p>',
+      choices: ['f','j'],
+      data: { stage: 'memory' },
+      on_finish: function(data) {
+        const actual = jsPsych.data.get().filter({ stage: 1, trial: i + 1 }).last(1).values()[0].choice_stage1;
+        const resp = data.response === 'f' ? 0 : 1;
+        data.memory_response = resp;
+        data.memory_correct = (actual === resp);
+      }
+    };
+
+    const gamble = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: '<p>記憶の正しさにポイントを賭けますか？</p>' +
+                '<div style="margin-top:40px;">Y: はい</div>' +
+                '<div style="margin-top:20px;">N: いいえ</div>',
+      choices: ['y','n'],
+      data: { stage: 'gamble' },
+      on_finish: function(data) {
+        const mem = jsPsych.data.get().filter({ stage: 'memory', trial: i + 1 }).last(1).values()[0];
+        const gambleFlag = data.response === 'y';
+        const win = gambleFlag && mem.memory_correct;
+        data.gambled = gambleFlag;
+        data.gamble_win = win;
+        if (win) total_points++;
+      }
+    };
+
+    // ==== タイムラインへの追加 ====
+    block_timeline.push(stage1, stage2);
+
     if (j === insert_index) {
-      const pre_memory = {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: '<p>次に記憶テストと賭けを行います。</p>' +
-                  '<p>直前のステージ1で選択したシンボルを思い出してください。</p>',
-        choices: [' '],
-        prompt: '<p>スペースキーを押して続行</p>',
-        data: { stage: 'pre_memory' }
-      };
-
-      const memory_trial = {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: '<p>記憶テスト：直前のステージ1で選択したのは？</p>' +
-                  '<div style="font-size:80px;">🔺　　　🔶</div>' +
-                  '<p>左: Fキー | 右: Jキー</p>',
-        choices: ['f','j'],
-        data: { stage: 'memory' },
-        on_finish: function(data) {
-          const actual = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0]?.choice_stage1;
-          const resp = data.response === 'f' ? 0 : 1;
-          data.memory_response = resp;
-          data.memory_correct = actual === resp;
-          console.log(`DEBUG memory actual=${actual} resp=${resp} correct=${data.memory_correct}`);
-        }
-      };
-
-      const gamble = {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: '<p>記憶の正しさにポイントを賭けますか？</p>' +
-                  '<div style="margin-top:40px;">Y: はい</div>' +
-                  '<div style="margin-top:20px;">N: いいえ</div>',
-        choices: ['y','n'],
-        data: { stage: 'gamble' },
-        on_finish: function(data) {
-          const mem = jsPsych.data.get().filter({ stage: 'memory' }).last(1).values()[0];
-          const gambleFlag = data.response === 'y';
-          const win = gambleFlag && mem?.memory_correct;
-          data.gambled = gambleFlag;
-          data.gamble_win = win;
-          if (win) total_points++;
-          console.log(`DEBUG gamble gambled=${gambleFlag} win=${win}`);
-        }
-      };
-
       block_timeline.push(pre_memory, memory_trial, gamble);
     }
+
+    block_timeline.push(feedback);
   }
 
   timeline.push(...block_timeline);
 }
 
+// 被験者ID を全データに追加
 jsPsych.data.addProperties({ subject: getSubjectId() });
 
-// Run timeline with the single jsPsych instance
+// 実験開始
 jsPsych.run(timeline);
