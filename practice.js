@@ -188,7 +188,7 @@ const instructions = [
         const flag = data.response==='y';
         data.gamble_win = flag&&mem.memory_correct;
         if(data.gamble_win) total_points++;
-      }
+      },
   // 7. 本練習開始（ボタン）
   {
     type: jsPsychHtmlButtonResponse,
