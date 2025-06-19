@@ -14,15 +14,18 @@ const jsPsych = initJsPsych();
 const TEXT_SIZE = '24px';
 const SYMBOL_SIZE = '120px';
 
-// 報酬確率の初期値と更新関数\let reward_probs = { state0: [0.5, 0.5], state1: [0.5, 0.5] };
+// 報酬確率の初期値と更新関数
+let reward_probs = { state0: [0.5, 0.5], state1: [0.5, 0.5] };
 const step_size = 0.025;
 const reward_bounds = [0.25, 0.75];
+
 function normalRandom(mean = 0, std = 1) {
   let u = Math.random(), v = Math.random();
   return mean + std * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
 }
+
 function updateRewardProbs() {
-  ['state0','state1'].forEach(state => {
+  ['state0', 'state1'].forEach(state => {
     reward_probs[state] = reward_probs[state].map(p => {
       const new_p = Math.min(
         Math.max(p + normalRandom(0, step_size), reward_bounds[0]),
@@ -64,6 +67,7 @@ const instructions = [
     choices: ['開始']
   }
 ];
+
 timeline.push(...instructions);
 
 // 2. 練習試行パラメータ
@@ -77,11 +81,11 @@ for (let j = 0; j < practice_trials; j++) {
     stimulus: `<div style="font-size:${TEXT_SIZE}"><p>ステージ1</p>` +
               `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔺　　🔶</div>` +
               `<p>左: Fキー | 右: Jキー</p></div>`,
-    choices: ['f','j'],
-    data: { phase: 'practice', stage: 1, trial: j+1 },
+    choices: ['f', 'j'],
+    data: { phase: 'practice', stage: 1, trial: j + 1 },
     on_finish: function(data) {
       data.choice_stage1 = data.response === 'f' ? 0 : 1;
-      // 簡易遷移（固定common）
+      // 簡易遷移（選択と同じ状態）
       data.state2 = data.choice_stage1;
     }
   });
@@ -91,28 +95,27 @@ for (let j = 0; j < practice_trials; j++) {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: function() {
       const prev = jsPsych.data.get()
-                     .filter({ phase: 'practice', stage:1, trial: j+1 })
-                     .last(1).values()[0];
-      const state = prev.state2;
-      const symbols = [['🔵','🟡'], ['🟢','🟣']];
+                     .filter({ phase: 'practice', stage: 1, trial: j + 1 })
+                     .last(1).values()[0] || {};
+      const state = prev.state2 !== undefined ? prev.state2 : 0;
+      const symbols = [['🔵', '🟡'], ['🟢', '🟣']];
       return `<div style="font-size:${TEXT_SIZE}"><p>ステージ2 - 状態 ${state}</p>` +
              `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">${symbols[state][0]}　　${symbols[state][1]}</div>` +
              `<p>左: Fキー | 右: Jキー</p></div>`;
     },
-    choices: ['f','j'],
-    data: { phase: 'practice', stage: 2, trial: j+1 },
+    choices: ['f', 'j'],
+    data: { phase: 'practice', stage: 2, trial: j + 1 },
     on_finish: function(data) {
-      // ステージ1の state2 を取得してデータに保存
+      // ステージ1の state2 を取得して data に保存
       const prev = jsPsych.data.get()
-                     .filter({ phase: 'practice', stage:1, trial: j+1 })
-                     .last(1).values()[0];
-      const state = prev.state2;
-      data.state2 = state;
+                     .filter({ phase: 'practice', stage: 1, trial: j + 1 })
+                     .last(1).values()[0] || {};
+      data.state2 = prev.state2 !== undefined ? prev.state2 : 0;
 
       // 報酬確率更新および報酬生成
       updateRewardProbs();
       const choice = data.response === 'f' ? 0 : 1;
-      const rp = reward_probs[`state${state}`][choice];
+      const rp = (reward_probs[`state${data.state2}`] || [0,0])[choice] || 0;
       const reward = Math.random() < rp ? 1 : 0;
       data.choice_stage2 = choice;
       data.reward = reward;
@@ -124,7 +127,7 @@ for (let j = 0; j < practice_trials; j++) {
   timeline.push({
     type: jsPsychHtmlKeyboardResponse,
     stimulus: function() {
-      const last = jsPsych.data.get().last(1).values()[0];
+      const last = jsPsych.data.get().last(1).values()[0] || {};
       const msg = last.reward ? '💰 報酬を得ました！' : '🙁 報酬はありません';
       return `<div style="font-size:${TEXT_SIZE}"><p>${msg}</p></div>`;
     },
@@ -132,36 +135,41 @@ for (let j = 0; j < practice_trials; j++) {
   });
 
   // 記憶賭け挿入
-  if (j+1 === insert_memory) {
+  if (j + 1 === insert_memory) {
+    // メモリーテスト
     timeline.push({
       type: jsPsychHtmlKeyboardResponse,
       stimulus: `<div style="font-size:${TEXT_SIZE}"><p>記憶テスト：直前のステージ1で選択したのは？</p>` +
                 `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔺　　🔶</div>` +
                 `<p>左: Fキー | 右: Jキー</p></div>`,
-      choices: ['f','j'],
-      data: { phase: 'practice', stage: 'memory', trial: j+1 },
+      choices: ['f', 'j'],
+      data: { phase: 'practice', stage: 'memory', trial: j + 1 },
       on_finish: function(data) {
         const actual = jsPsych.data.get()
-                          .filter({ phase:'practice', stage:1, trial: j+1 })
-                          .last(1).values()[0].choice_stage1;
+                          .filter({ phase: 'practice', stage: 1, trial: j + 1 })
+                          .last(1).values()[0]?.choice_stage1;
         const resp = data.response === 'f' ? 0 : 1;
         data.memory_correct = (actual === resp);
       }
     });
+    // 賭け
     timeline.push({
       type: jsPsychHtmlKeyboardResponse,
       stimulus: `<div style="font-size:${TEXT_SIZE}"><p>記憶の正しさにポイントを賭けますか？</p>` +
                 `<p>Y: はい　 N: いいえ</p></div>`,
-      choices: ['y','n'],
-      data: { phase: 'practice', stage: 'gamble', trial: j+1 },
+      choices: ['y', 'n'],
+      data: { phase: 'practice', stage: 'gamble', trial: j + 1 },
       on_finish: function(data) {
-        const mem = jsPsych.data.get().filter({ phase:'practice', stage:'memory' }).last(1).values()[0] || {};
+        const mem = jsPsych.data.get()
+                      .filter({ phase: 'practice', stage: 'memory', trial: j + 1 })
+                      .last(1).values()[0] || {};
         const gambleFlag = data.response === 'y';
         const win = gambleFlag && mem.memory_correct;
         data.gamble_win = win;
         if (win) total_points++;
       }
     });
+    // 通常試行復帰案内
     timeline.push({
       type: jsPsychHtmlKeyboardResponse,
       stimulus: `<div style="font-size:${TEXT_SIZE}"><p>通常試行に戻ります。</p></div>`,
@@ -177,5 +185,5 @@ timeline.push({
   choices: ['開始']
 });
 
-// 実行
+// 練習実行
 jsPsych.run(timeline);
