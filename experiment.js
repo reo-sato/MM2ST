@@ -1,4 +1,4 @@
-// JavaScript source code with corrected logging
+// JavaScript source code with corrected logging and no prev.trial reference
 
 let total_reward = 0;
 let total_points = 0;
@@ -67,7 +67,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
                       ? (common ? 0 : 1)
                       : (common ? 1 : 0);
         data.transition = common ? 'common' : 'rare';
-        console.log(`DEBUG stage1 trial=${data.trial} choice=${data.choice_stage1} common=${common} state2=${data.state2}`);
+        console.log(`DEBUG stage1 trial=${data.trial} choice_stage1=${data.choice_stage1} common=${common} state2=${data.state2}`);
       }
     };
 
@@ -99,13 +99,14 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       }
     };
 
-    // Feedback with space requirement
+    // Feedback (space to continue)
     const feedback = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function() {
-        const last = jsPsych.data.get().last(1).values()[0];
-        const reward = last?.reward ?? 0;
-        return reward ? '<p>💰報酬を得ました！</p>' : '<p>🙁報酬はありません</p>';
+        const reward = jsPsych.data.get().last(1).values()[0]?.reward ?? 0;
+        return reward
+               ? '<p>💰報酬を得ました！</p>'
+               : '<p>🙁報酬はありません</p>';
       },
       choices: [' '],
       prompt: '<p>続行するにはスペースキーを押してください。</p>'
@@ -113,14 +114,14 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
 
     block_timeline.push(stage1, stage2, feedback);
 
-    // Pre-memory explanation
+    // Pre-memory instruction and memory trials
     if (j === insert_index) {
       const pre_memory = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus: '<p>このあと記憶テストと賭け試行を行います。</p>' +
-                  '<p>ステージ1での選択を思い出して回答し、ポイントを賭けてください。</p>',
+        stimulus: '<p>このあと記憶テストと賭けを行います。</p>' +
+                  '<p>直前のステージ1で選んだ選択肢を思い出し、回答＆賭けてください。</p>',
         choices: [' '],
-        prompt: '<p>続行するにはスペースキーを押してください。</p>',
+        prompt: '<p>スペースキーを押して続行</p>',
         data: { stage: 'pre_memory' }
       };
 
@@ -178,10 +179,8 @@ firebase.auth().signInAnonymously().then(() => {
         total_points: total_points,
         data: JSON.parse(d)
       }).then(() => {
-        alert(`✅ 保存完了\n報酬合計: ${total_reward}\nポイント合計: ${total_points}`);
-      }).catch(e => {
-        alert('❌ 保存失敗: '+e.message);
-      });
+        alert(`✅ 保存完了 報酬:${total_reward} ポイント:${total_points}`);
+      }).catch(e => alert('❌ 保存失敗:'+e.message));
     }
   });
   saver.data.addProperties({ subject: subjectId });
