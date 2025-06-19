@@ -23,7 +23,7 @@ const jsPsych = initJsPsych({
   }
 });
 
-// 表示サイズ設定（必要に応じて調整）
+// 表示サイズ設定
 const TEXT_SIZE = '24px';
 const SYMBOL_SIZE = '120px';
 
@@ -91,17 +91,22 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
     const stage2 = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function() {
-        const prev = jsPsych.data.get().filter({ stage: 1, trial: i + 1 }).last(1).values()[0];
+        const prev = jsPsych.data.get()
+                     .filter({ stage: 1, trial: i + 1 })
+                     .last(1).values()[0];
         const state = prev.state2;
         const symbols = [['🔵','🟡'], ['🟢','🟣']];
         return `<div style="font-size:${TEXT_SIZE}"><p>ステージ2 - 状態 ${state}</p>` +
-               `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">${symbols[state][0]}　　${symbols[state][1]}</div>` +
+               `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">` +
+               `${symbols[state][0]}　　${symbols[state][1]}</div>` +
                `<p>左: Fキー | 右: Jキー</p></div>`;
       },
       choices: ['f','j'],
       data: { stage: 2, trial: i + 1 },
       on_finish: function(data) {
-        const prev = jsPsych.data.get().filter({ stage: 1, trial: i + 1 }).last(1).values()[0];
+        const prev = jsPsych.data.get()
+                     .filter({ stage: 1, trial: i + 1 })
+                     .last(1).values()[0];
         const state = prev.state2;
         const choice = data.response === 'f' ? 0 : 1;
         const rp = reward_probs[`state${state}`][choice];
@@ -144,7 +149,9 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       choices: ['f','j'],
       data: { stage: 'memory', trial: i + 1 },
       on_finish: function(data) {
-        const actual = jsPsych.data.get().filter({ stage: 1, trial: i + 1 }).last(1).values()[0].choice_stage1;
+        const actual = jsPsych.data.get()
+                         .filter({ stage: 1, trial: i + 1 })
+                         .last(1).values()[0].choice_stage1;
         const resp = data.response === 'f' ? 0 : 1;
         data.memory_response = resp;
         data.memory_correct = (actual === resp);
@@ -176,7 +183,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
 
     // ==== タイムライン構築 ====
     if (j === insert_index) {
-      // 記憶賭けを挿入する試行：stage1→stage2→feedback→memoryパーツ→post_memory
+      // メモリー挿入試行：stage1→stage2→feedback→pre_memory→memory→gamble→post_memory
       block_timeline.push(stage1, stage2, feedback, pre_memory, memory_trial, gamble, post_memory);
     } else {
       // 通常試行：stage1→stage2→feedback
