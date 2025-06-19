@@ -182,12 +182,7 @@ const instructions = [
       type: jsPsychHtmlKeyboardResponse,
       stimulus: `<div style="font-size:${TEXT_SIZE}"><p>記憶の正しさに1ポイントを賭けますか？</p><p>Y: はい　 N: いいえ</p></div>`,
       choices: ['y','n'],
-      data: { phase:'practice', stage:'gamble', trial:j+1 },
-      on_finish: function(data) {
-        const mem = jsPsych.data.get().filter({ phase:'practice', stage:'memory', trial:j+1 }).last(1).values()[0]||{};
-        const flag = data.response==='y';
-        data.gamble_win = flag&&mem.memory_correct;
-        if(data.gamble_win) total_points++;
+      
       },
   // 7. 本練習開始（ボタン）
   {
