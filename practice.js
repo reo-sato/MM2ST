@@ -51,62 +51,112 @@ const baseline = {
 
 // 1. インストラクション（課題構造の説明）
 const instructions = [
-  // 1. 全体イントロ
   {
-    type: jsPsychHtmlButtonResponse,
+    type: jsPsychHtmlKeyboardResponse,
     stimulus: `
-      <div style="padding:40px 20px; font-size:${TEXT_SIZE};">
+      <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center;">
         <p>ようこそ！このタスクは、一試行当たり2段階の選択と、時折記憶テストがあります。</p>
+        <p>次へ進むにはスペースキーを押してください。</p>
       </div>
     `,
-    choices: ['次へ']
+    choices: [' ']
   },
-  // 2. ステージ1 説明
   {
-    type: jsPsychHtmlButtonResponse,
+    type: jsPsychHtmlKeyboardResponse,
     stimulus: `
-      <div style="padding:40px 20px; font-size:${TEXT_SIZE};">
+      <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center;">
         <p>ステージ1では、2つのシンボルのうちどちらかを選択します。</p>
+        <p>左なら F、右なら J のキーを押してください。</p>
+        <p>ここでは試しに F を押してみてください。</p>
+      </div>
+      <div style="display:flex; justify-content:center; margin-bottom:40px;">
+        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔴</span>
+        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔵</span>
+      </div>
+      <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:40px;">
+        <p>左: Fキー | 右: Jキー</p>
+      </div>
+    `,
+    choices: ['f']
+  },
+  {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center;">
+        <p>ステージ2でも、2つのシンボルから一方を選択します。</p>
+        <p>それぞれの報酬確率はゆっくり変化するので学習が必要です。</p>
+        <p>ここでは試しに F または J を押してみてください。</p>
+      </div>
+      <div style="display:flex; justify-content:center; margin-bottom:40px;">
+        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🟢</span>
+        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🟡</span>
+      </div>
+      <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:40px;">
+        <p>左: Fキー | 右: Jキー</p>
+      </div>
+    `,
+    choices: ['f','j']
+  },
+  {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center;">
+        <p>報酬の有無が提示された後、ステージ1に戻ります。</p>
+        <p>💰 報酬を得ました！</p>
+        <p>次へ進むにはスペースキーを押してください。</p>
+      </div>
+    `,
+    choices: [' ']
+  },
+  {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center;">
+        <p>もう一度 F を押してみてください。</p>
+      </div>
+      <div style="display:flex; justify-content:center; margin-bottom:40px;">
+        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔴</span>
+        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔵</span>
+      </div>
+      <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:40px;">
+        <p>左: Fキー | 右: Jキー</p>
+      </div>
+    `,
+    choices: ['f']
+  },
+  {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center;">
+        <p>実は、ステージ2ではステージ1の選択に応じて2対のシンボルが提示されます。</p>
+        <p>確率的に決まりますが、選択によって提示されやすさが変わります。</p>
+        <p>ここでは F または J を押してみてください。</p>
+      </div>
+      <div style="display:flex; justify-content:center; margin-bottom:40px;">
+        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🟣</span>
+        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🟠</span>
+      </div>
+      <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:40px;">
+        <p>左: Fキー | 右: Jキー</p>
+      </div>
+    `,
+    choices: ['f','j']
+  },
+  {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:left;">
+        <p>また、時折挟まる記憶テストでは直近のステージ1で選択したシンボルを思い出してもらいます。</p>
+        <p>回答にポイントを賭けると、正解→+1、不正解→-1。賭けないと±0です。</p>
       </div>
     `,
     choices: ['次へ']
   },
-  // 3. ステージ2 説明(遷移構造)
   {
     type: jsPsychHtmlButtonResponse,
     stimulus: `
-      <div style="padding:40px 20px; font-size:${TEXT_SIZE};">
-        <p>ステージ2では、2対のシンボルのうち1対が提示されます。どのシンボルの組が提示されるかは確率的に決まりますが、ステージ１の選択によって、どのシンボルの組が提示されやすいかが決まります。</p>
-      </div>
-    `,
-    choices: ['次へ']
-  },
-  // 4. ステージ2 報酬学習 説明
-  {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: `
-      <div style="padding:40px 20px; font-size:${TEXT_SIZE};">
-        <p>ステージ2では、2つのシンボルから一方を選択します。それぞれのシンボルに対して報酬の1ポイントがどのような確率で得られるかは決まっており、この確率はゆっくりと変化していくため、今現在どのシンボルを選択することが報酬獲得につながりやすいのかを学習していく必要があります。</p>
-      </div>
-    `,
-    choices: ['次へ']
-  },
-  // 5. 記憶テスト 説明
-  {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: `
-      <div style="padding:40px 20px; font-size:${TEXT_SIZE};">
-        <p>また、時折挟まる記憶テストでは、直近のステージ1でどのシンボルを選択したか思い出してもらいます。さらに、その回答に対して通常試行と共通のポイントを賭けることができます。賭けた場合には、正解→+1ポイント　不正解→-1ポイントとなり、賭けなかった場合には正解→0ポイント　不正解→0ポイントとなります。</p>
-      </div>
-    `,
-    choices: ['次へ']
-  },
-  // 6. 練習開始
-  {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: `
-      <div style="padding:40px 20px; font-size:${TEXT_SIZE};">
-        <p>それでは、練習を始めます！練習中の報酬は本報酬に影響しません。</p>
+      <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center;">
+        <p>それでは、練習を始めます！練習中の報酬は本試験に影響しません。</p>
       </div>
     `,
     choices: ['開始']
@@ -115,31 +165,33 @@ const instructions = [
 
 timeline.push(...instructions);
 
-timeline.push(...instructions);
-
-// 2. 練習試行パラメータ（省略せず既存コードをそのまま適用）
+// 2. 練習試行パラメータ（既存コードを省略せず適用）
 const practice_trials = 6;
 const insert_memory = 3;
 for (let j = 0; j < practice_trials; j++) {
   // --- ステージ1 ---
-  timeline.push({ /* 省略: 既存のstage1試行 */ });
+  timeline.push({ /* stage1試行ここ */ });
   // --- ステージ2 ---
-  timeline.push({ /* 省略: 既存のstage2試行 */ });
+  timeline.push({ /* stage2試行ここ */ });
   // --- フィードバック ---
-  timeline.push({ /* 省略: 既存のフィードバック */ });
+  timeline.push({ /* feedback試行ここ */ });
   // --- 記憶賭けパート ---
   if (j+1 === insert_memory) {
-    timeline.push({ /* 省略: pre-memory */ });
-    timeline.push({ /* 省略: memory */ });
-    timeline.push({ /* 省略: gamble */ });
-    timeline.push({ /* 省略: post-memory */ });
+    timeline.push({ /* pre-memoryここ */ });
+    timeline.push({ /* memoryここ */ });
+    timeline.push({ /* gambleここ */ });
+    timeline.push({ /* post-memoryここ */ });
   }
-  // ベースライン
+  // --- ベースライン ---
   timeline.push(baseline);
 }
 
 // 3. 練習終了メッセージ
-timeline.push({ type: jsPsychHtmlButtonResponse, stimulus: `<div style="font-size:${TEXT_SIZE}"><p>練習終了！本番に移ります。</p></div>`, choices: ['開始'] });
+timeline.push({
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `<div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center;"><p>練習終了！本番に移ります。</p></div>`,
+  choices: ['開始']
+});
 
 // 実行
 jsPsych.run(timeline);
