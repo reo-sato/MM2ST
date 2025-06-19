@@ -88,7 +88,6 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
     const stage2 = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function() {
-        // 直前のステージ1データのみを取得
         const prev = jsPsych.data.get().filter({ stage: 1, trial: i + 1 }).last(1).values()[0];
         const state = prev.state2;
         console.log(`DEBUG stage2 sees state2=${state}`);
@@ -126,7 +125,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       prompt: '<p>続行するにはスペースキーを押してください。</p>'
     };
 
-    // --- メモリー賭け試行用パーツ ---
+    // --- 記憶賭け試行パーツ ---
     const pre_memory = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: '<p>次に記憶テストと賭けを行います。</p>' +
@@ -135,7 +134,6 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       prompt: '<p>スペースキーを押して続行</p>',
       data: { stage: 'pre_memory' }
     };
-
     const memory_trial = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: '<p>記憶テスト：直前のステージ1で選択したのは？</p>' +
@@ -150,7 +148,6 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
         data.memory_correct = (actual === resp);
       }
     };
-
     const gamble = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: '<p>記憶の正しさにポイントを賭けますか？</p>' +
@@ -168,13 +165,21 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       }
     };
 
+    // --- 通常試行に戻る案内画面 ---
+    const post_memory = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: '<p>これで記憶賭け試行は終了です。</p>' +
+                '<p>通常試行に戻ります。</p>',
+      choices: [' '],
+      prompt: '<p>スペースキーを押して続行してください。</p>',
+      data: { stage: 'post_memory' }
+    };
+
     // ==== タイムラインへの追加 ====
     block_timeline.push(stage1, stage2);
-
     if (j === insert_index) {
-      block_timeline.push(pre_memory, memory_trial, gamble);
+      block_timeline.push(pre_memory, memory_trial, gamble, post_memory);
     }
-
     block_timeline.push(feedback);
   }
 
