@@ -51,120 +51,116 @@ const baseline = {
 
 // 1. インストラクション（課題構造の説明）
 const instructions = [
-  // 全体イントロ（スペースキー）
+  // 1. 全体イントロ（スペースキーで次へ）
   {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
-      <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:20px;">
+      <div style="padding:40px 20px; display:flex; flex-direction:column; align-items:center; gap:20px; font-size:${TEXT_SIZE};">
         <p>ようこそ！このタスクは、一試行当たり2段階の選択と、時折記憶テストがあります。</p>
         <p>次へ進むにはスペースキーを押してください。</p>
       </div>
     `,
     choices: [' ']
   },
-  // ステージ1 説明＋練習
+  // 2. ステージ1 操作説明と練習（Fキーのみ）
   {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
-      <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:20px;">
-        <p>ステージ1では、2つのシンボルのうちどちらかを選択します。</p>
-        <p>左なら F、右なら J のキーを押してください。</p>
+      <div style="padding:40px 20px; display:flex; flex-direction:column; align-items:center; gap:20px; font-size:${TEXT_SIZE};">
+        <div>
+          <p>ステージ1では、2つのシンボルのうちどちらかを選択します。</p>
+          <p>左なら F、右なら J のキーを押してください。</p>
+        </div>
+        <div style="display:flex; gap:40px;">
+          <span style="font-size:${SYMBOL_SIZE};">🔴</span>
+          <span style="font-size:${SYMBOL_SIZE};">🔵</span>
+        </div>
         <p>ここでは試しに F を押してみてください。</p>
-      </div>
-      <div style="display:flex; justify-content:center; margin-bottom:20px;">
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔴</span>
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔵</span>
-      </div>
-      <div style="font-size:${TEXT_SIZE}; text-align:center;">
-        <p>左: Fキー | 右: Jキー</p>
       </div>
     `,
     choices: ['f']
   },
-  // ステージ2 説明＋練習
+  // 3. ステージ2 操作説明と練習（F or J キー）
   {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
-      <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:20px;">
-        <p>ステージ2では、ステージ1の選択をもとに2つのシンボルから一方を選択します。</p>
-        <p>報酬獲得確率はゆっくり変化しているので、学習が必要です。</p>
+      <div style="padding:40px 20px; display:flex; flex-direction:column; align-items:center; gap:20px; font-size:${TEXT_SIZE};">
+        <div>
+          <p>ステージ2でも、2つのシンボルから一方を選択します。</p>
+          <p>報酬獲得確率はゆっくり変化しているので、学習が必要です。</p>
+        </div>
+        <div style="display:flex; gap:40px;">
+          <span style="font-size:${SYMBOL_SIZE};">🟢</span>
+          <span style="font-size:${SYMBOL_SIZE};">🟡</span>
+        </div>
         <p>ここでは試しに F または J を押してみてください。</p>
-      </div>
-      <div style="display:flex; justify-content:center; margin-bottom:20px;">
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🟢</span>
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🟡</span>
-      </div>
-      <div style="font-size:${TEXT_SIZE}; text-align:center;">
-        <p>左: Fキー | 右: Jキー</p>
       </div>
     `,
     choices: ['f','j']
   },
-  // 報酬提示練習
+  // 4. 報酬提示練習
   {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
-      <div style="font-size:${TEXT_SIZE}; text-align:center;">
-        <p>報酬の有無が提示された後、ステージ1に戻ります。</p>
-        <p>💰 1ポイントの報酬を得ました！</p>
+      <div style="padding:40px 20px; text-align:center; font-size:${TEXT_SIZE};">
+        <p>💰 報酬を得ました！</p>
+        <p>ステージ1に戻ります。</p>
         <p>次へ進むにはスペースキーを押してください。</p>
       </div>
     `,
     choices: [' ']
   },
-  // ステージ1 再練習
+  // 5. ステージ1 再練習
   {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
-      <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:20px;">
+      <div style="padding:40px 20px; display:flex; flex-direction:column; align-items:center; gap:20px; font-size:${TEXT_SIZE};">
         <p>もう一度 F を押してみてください。</p>
-      </div>
-      <div style="display:flex; justify-content:center; margin-bottom:20px;">
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔴</span>
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔵</span>
-      </div>
-      <div style="font-size:${TEXT_SIZE}; text-align:center;">
-        <p>左: Fキー | 右: Jキー</p>
+        <div style="display:flex; gap:40px;">
+          <span style="font-size:${SYMBOL_SIZE};">🔴</span>
+          <span style="font-size:${SYMBOL_SIZE};">🔵</span>
+        </div>
       </div>
     `,
     choices: ['f']
   },
-  // ステージ2 遷移構造説明＋練習
+  // 6. 遷移構造説明＋練習
   {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
-      <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:20px;">
-        <p>実は、ステージ2ではステージ1の選択によって2対のうち1対が提示されやすくなります。</p>
-        <p>ここでは F または J を押してみてください。</p>
-      </div>
-      <div style="display:flex; justify-content:center; margin-bottom:20px;">
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🟣</span>
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🟠</span>
-      </div>
-      <div style="font-size:${TEXT_SIZE}; text-align:center;">
-        <p>左: Fキー | 右: Jキー</p>
+      <div style="padding:40px 20px; display:flex; flex-direction:column; align-items:center; gap:20px; font-size:${TEXT_SIZE};">
+        <div>
+          <p>実は、ステージ2ではステージ1の選択で提示されやすいシンボル組が変わります。</p>
+          <p>ここでは F または J を押してみてください。</p>
+        </div>
+        <div style="display:flex; gap:40px;">
+          <span style="font-size:${SYMBOL_SIZE};">🟣</span>
+          <span style="font-size:${SYMBOL_SIZE};">🟠</span>
+        </div>
       </div>
     `,
     choices: ['f','j']
   },
-  // 記憶賭けテスト説明
+  // 7. 記憶賭けテスト説明
   {
     type: jsPsychHtmlButtonResponse,
     stimulus: `
-      <div style="font-size:${TEXT_SIZE}; text-align:left;">
-        <p>また、時折挟まる記憶テストでは直近のステージ1で何を選んだか思い出してもらいます。</p>
-        <p>回答にポイントを賭けると、正解→+1、不正解→-1。賭けないと±0です。</p>
+      <div style="padding:40px 20px; font-size:${TEXT_SIZE};">
+        <p>時折挟まる記憶テストでは、直前のステージ1で選択したシンボルを思い出し、</p>
+        <p>ポイントを賭けることができます。</p>
+        <p>賭けた場合：正解→+1ポイント、不正解→-1ポイント</p>
+        <p>賭けなかった場合：±0ポイント</p>
       </div>
     `,
     choices: ['次へ']
   },
-  // 練習開始
+  // 8. 練習開始
   {
     type: jsPsychHtmlButtonResponse,
     stimulus: `
-      <div style="font-size:${TEXT_SIZE}; text-align:center;">
-        <p>それでは練習を始めます！</p>
-        <p>練習中の報酬は本試験に影響しません。</p>
+      <div style="padding:40px 20px; text-align:center; font-size:${TEXT_SIZE};">
+        <p>それでは、練習を始めます！</p>
+        <p>練習中の結果は本試験に影響しません。</p>
       </div>
     `,
     choices: ['開始']
