@@ -161,6 +161,7 @@ const instructions = [
     type: jsPsychHtmlButtonResponse,
     stimulus: `
       <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center; margin-bottom:40px;">
+<p>賭けに対しては報酬のフィードバックは行われず、最終的な点数にのみ反映されます。</p>
         <p>それでは、練習を始めます！練習中の報酬は本試験に影響しません。</p>
       </div>
     `,
