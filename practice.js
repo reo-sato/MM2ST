@@ -203,7 +203,7 @@ for (let j = 0; j < practice_trials; j++) {
   // --- ステージ1 ---
   timeline.push({
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: 
+    stimulus: `
       <div style="font-size:${TEXT_SIZE}">
         
         <p>ステージ1</p>
