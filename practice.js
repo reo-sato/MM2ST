@@ -293,6 +293,7 @@ prompt: `<div style="font-size:${TEXT_SIZE}"><p>スペースキーを押して�
           <p>通常試行に戻ります。</p>
         </div>
       `,
+prompt: `<div style="font-size:${TEXT_SIZE}"><p>スペースキーを押して続行</p></div>`,
       choices: [' ']
     });
   }
