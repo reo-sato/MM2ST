@@ -22,10 +22,7 @@ let reward_probs = {
 function updateRewardProbs() {
   ['state0', 'state1'].forEach(state => {
     reward_probs[state] = reward_probs[state].map(p => {
-      const new_p = Math.min(
-        Math.max(p + normalRandom(0, step_size), reward_bounds[0]),
-        reward_bounds[1]
-      );
+      const new_p = Math.min(Math.max(p + normalRandom(0, step_size), reward_bounds[0]), reward_bounds[1]);
       return new_p;
     });
   });
@@ -33,10 +30,7 @@ function updateRewardProbs() {
 
 function normalRandom(mean = 0, std = 1) {
   let u = Math.random(), v = Math.random();
-  return (
-    mean +
-    std * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
-  );
+  return mean + std * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
 }
 
 function getSubjectId() {
@@ -46,129 +40,97 @@ function getSubjectId() {
 const timeline = [];
 
 for (let block = 0; block < num_trials / trials_per_block; block++) {
-  const block_timeline = [];
-  const insert_index = Math.floor(
-    Math.random() * (trials_per_block - 2)
-  ) + 2;
+  const block_tl = [];
+  const insert_index = Math.floor(Math.random() * (trials_per_block - 2)) + 2;
 
   for (let j = 0; j < trials_per_block; j++) {
-    const i = block * trials_per_block + j;
+    const trialNum = block * trials_per_block + j + 1;
     updateRewardProbs();
 
     const stage1 = {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus:
-        '<p>ステージ1</p><div style="font-size:80px;">🔺　　　🔶</div><p>左: Fキー | 右: Jキー</p>',
+      stimulus: '<p>ステージ1</p><div style="font-size:80px;">🔺　　　🔶</div><p>左: Fキー | 右: Jキー</p>',
       choices: ['f', 'j'],
-      data: { stage: 1, trial: i + 1 },
-      on_finish: function (data) {
+      data: { stage: 1, trial: trialNum },
+      on_finish: function(data) {
         data.choice_stage1 = data.response === 'f' ? 0 : 1;
         const common = Math.random() < transition_prob;
-        data.state2 = data.choice_stage1 === 0 ? (common ? 0 : 1) : (common ? 1 : 0);
+        const state2 = data.choice_stage1 === 0 ? (common ? 0 : 1) : (common ? 1 : 0);
+        data.state2 = state2;
         data.transition = common ? 'common' : 'rare';
-        console.log(
-          `DEBUG stage1 trial=${data.trial} choice_stage1=${data.choice_stage1} common=${common} state2=${data.state2}`
-        );
+        console.log(`Stage1 trial ${data.trial}: choice_stage1=${data.choice_stage1}, common=${common}, state2=${state2}`);
       }
     };
 
     const stage2 = {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: function () {
-        const last1 = jsPsych.data
-          .get()
-          .filter({ stage: 1 })
-          .last(1)
-          .values()[0];
+      stimulus: function() {
+        const last1 = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0];
         const state = last1?.state2 ?? 0;
-        console.log(`DEBUG stage2 reads state2=${state}`);
-        const symbols = [
-          ['🔵', '🟡'],
-          ['🟢', '🟣']
-        ];
-        return `<p>ステージ2 - 状態 ${state}</p>` +
-          `<div style="font-size:80px;">${symbols[state][0]}　　　${symbols[state][1]}</div>` +
-          `<p>左: Fキー | 右: Jキー</p>`;
+        console.log(`Stage2 trial ${trialNum}: sees state2=${state}`);
+        const symbols = [['🔵','🟡'],['🟢','🟣']];
+        return `<p>ステージ2 - 状態 ${state}</p><div style="font-size:80px;">${symbols[state][0]}　　　${symbols[state][1]}</div><p>左: Fキー | 右: Jキー</p>`;
       },
       choices: ['f', 'j'],
-      data: { stage: 2, trial: i + 1 },
-      on_finish: function (data) {
-        const last1 = jsPsych.data
-          .get()
-          .filter({ stage: 1 })
-          .last(1)
-          .values()[0];
+      data: { stage: 2, trial: trialNum },
+      on_finish: function(data) {
+        const last1 = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0];
         const state = last1?.state2 ?? 0;
         const choice = data.response === 'f' ? 0 : 1;
         const rp = reward_probs[`state${state}`][choice];
         const reward = Math.random() < rp ? 1 : 0;
-        data.state2 = state;
         data.choice_stage2 = choice;
+        data.state2 = state;
         data.reward = reward;
         total_reward += reward;
+        console.log(`Stage2 trial ${data.trial}: choice=${choice}, reward=${reward}`);
       }
     };
 
     const feedback = {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: function () {
+      stimulus: function() {
         const reward = jsPsych.data.get().last(1).values()[0]?.reward ?? 0;
-        return reward
-          ? '<p>💰報酬を得ました！</p>'
-          : '<p>🙁報酬はありません</p>';
+        return reward ? '<p>💰報酬を得ました！</p>' : '<p>🙁報酬はありません</p>';
       },
       choices: ['f', 'j']
     };
 
-    block_timeline.push(stage1, stage2, feedback);
+    block_tl.push(stage1, stage2, feedback);
 
     if (j === insert_index) {
-      const memory_trial = {
+      const memory = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus:
-          '<p>記憶テスト：直前のステージ1で選択したのは？</p>' +
-          '<div style="font-size:80px;">🔺　　　🔶</div>' +
-          '<p>左: Fキー | 右: Jキー</p>',
+        stimulus: '<p>記憶テスト：直前のステージ1で選択したのは？</p><div style="font-size:80px;">🔺　　　🔶</div><p>左: Fキー | 右: Jキー</p>',
         choices: ['f', 'j'],
         data: { stage: 'memory' },
-        on_finish: function (data) {
-          const actual = jsPsych.data
-            .get()
-            .filter({ stage: 1 })
-            .last(1)
-            .values()[0]?.choice_stage1;
+        on_finish: function(data) {
+          const actual = jsPsych.data.get().filter({ stage: 1 }).last(1).values()[0]?.choice_stage1;
           const resp = data.response === 'f' ? 0 : 1;
           data.memory_response = resp;
           data.memory_correct = actual === resp;
+          console.log(`Memory trial: actual=${actual}, response=${resp}, correct=${data.memory_correct}`);
         }
       };
-
       const gamble = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus:
-          '<p>記憶の正しさにポイントを賭けますか？</p>' +
-          '<div style="margin-top:40px;">はい: Yキー</div>' +
-          '<div style="margin-top:20px;">いいえ: Nキー</div>',
+        stimulus: '<p>記憶の正しさにポイントを賭けますか？</p><div style="margin-top:40px;">はい: Yキー</div><div style="margin-top:20px;">いいえ: Nキー</div>',
         choices: ['y', 'n'],
         data: { stage: 'gamble' },
-        on_finish: function (data) {
-          const mem = jsPsych.data
-            .get()
-            .filter({ stage: 'memory' })
-            .last(1)
-            .values()[0];
+        on_finish: function(data) {
+          const mem = jsPsych.data.get().filter({ stage: 'memory' }).last(1).values()[0];
           const gamble = data.response === 'y';
           const win = gamble && mem?.memory_correct;
           data.gambled = gamble;
           data.gamble_win = win;
           if (win) total_points++;
+          console.log(`Gamble trial: gamble=${gamble}, mem.correct=${mem?.memory_correct}, win=${win}`);
         }
       };
-
-      block_timeline.push(memory_trial, gamble);
+      block_tl.push(memory, gamble);
     }
   }
-  timeline.push(...block_timeline);
+  timeline.push(...block_tl);
 }
 
 jsPsych.data.addProperties({ subject: getSubjectId() });
@@ -176,16 +138,14 @@ jsPsych.data.addProperties({ subject: getSubjectId() });
 firebase.auth().signInAnonymously().then(() => {
   const subjectId = getSubjectId();
   const saver = initJsPsych({
-    on_finish: function () {
+    on_finish: function() {
       const d = jsPsych.data.get().json();
       firebase.database().ref('data/' + subjectId).set({
         timestamp: Date.now(),
-        total_reward: total_reward,
-        total_points: total_points,
+        total_reward,
+        total_points,
         data: JSON.parse(d)
-      }).then(() =>
-        alert(`✅ 保存完了\n報酬:${total_reward} ポイント:${total_points}`)
-      );
+      }).then(() => console.log('Data saved')).catch(e => console.error(e));
     }
   });
   saver.data.addProperties({ subject: subjectId });
