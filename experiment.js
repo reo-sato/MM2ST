@@ -1,4 +1,4 @@
-// JavaScript source code with corrected stage2 lookup
+// JavaScript source code with “press space to continue” prompts
 
 let total_reward = 0;
 let total_points = 0;
@@ -46,7 +46,6 @@ const timeline = [];
 
 for (let block = 0; block < num_trials / trials_per_block; block++) {
   const block_timeline = [];
-  // Insert memory gamble after at least 2 normal trials
   const insert_index = Math.floor(Math.random() * (trials_per_block - 2)) + 2;
 
   for (let j = 0; j < trials_per_block; j++) {
@@ -76,7 +75,6 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
     const stage2 = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function() {
-        // Always refer to the immediately previous trial
         const prev = jsPsych.data.get().last(1).values()[0];
         const state = prev?.state2 ?? 0;
         console.log(`DEBUG stage2 trial=${prev.trial} sees state2=${state}`);
@@ -101,7 +99,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       }
     };
 
-    // --- Feedback ---
+    // --- Feedback reminding to press SPACE ---
     const feedback = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function() {
@@ -111,14 +109,24 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
                ? '<p>💰報酬を得ました！</p>'
                : '<p>🙁報酬はありません</p>';
       },
-      choices: ['f','j']
+      choices: [' '],  // spacebar
+      prompt: '<p>続行するにはスペースキーを押してください。</p>'
     };
 
-    // Push normal sequence
     block_timeline.push(stage1, stage2, feedback);
 
-    // Insert memory & gamble
+    // --- Pre-memory instruction (when j == insert_index) ---
     if (j === insert_index) {
+      const pre_memory = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: '<p>このあと記憶テストと賭けを行います。</p>' +
+                  '<p>直前のステージ1で選んだ選択肢を思い出し、回答＆賭けてください。</p>',
+        choices: [' '],
+        prompt: '<p>テストを続けるにはスペースキーを押してください。</p>',
+        data: { stage: 'pre_memory' }
+      };
+
+      // --- Memory test ---
       const memory_trial = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: '<p>記憶テスト：直前のステージ1で選択したのは？</p>' +
@@ -135,11 +143,12 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
         }
       };
 
+      // --- Gamble prompt (Y/N vertically) ---
       const gamble = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: '<p>記憶の正しさにポイントを賭けますか？</p>' +
-                  '<div style="margin-top:40px;">はい: Yキー</div>' +
-                  '<div style="margin-top:20px;">いいえ: Nキー</div>',
+                  '<div style="margin-top: 40px;">Y: はい</div>' +
+                  '<div style="margin-top: 20px;">N: いいえ</div>',
         choices: ['y','n'],
         data: { stage: 'gamble' },
         on_finish: function(data) {
@@ -153,7 +162,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
         }
       };
 
-      block_timeline.push(memory_trial, gamble);
+      block_timeline.push(pre_memory, memory_trial, gamble);
     }
   }
 
@@ -162,7 +171,6 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
 
 jsPsych.data.addProperties({ subject: getSubjectId() });
 
-// Firebase save on end
 firebase.auth().signInAnonymously().then(() => {
   const subjectId = getSubjectId();
   const saver = initJsPsych({
