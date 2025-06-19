@@ -139,6 +139,7 @@ const instructions = [
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `<div style="font-size:${TEXT_SIZE}">
 <p>直近のステージ1で選択したのは？</p>
+<p></p>
 ` +
                 `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔴　　🔵</div>` +
                 `<p>左: Fキー | 右: Jキー</p></div>`,
