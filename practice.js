@@ -215,4 +215,3 @@ jsPsych.data.addProperties({ subject: getSubjectId() });
 
 // 実験開始
 jsPsych.run(timeline);
-
