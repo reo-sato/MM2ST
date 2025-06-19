@@ -23,6 +23,10 @@ const jsPsych = initJsPsych({
   }
 });
 
+// 表示サイズ設定（必要に応じて数値を調整）
+const TEXT_SIZE = '24px';
+const SYMBOL_SIZE = '120px';
+
 const num_trials = 200;
 const trials_per_block = 5;
 const transition_prob = 0.7;
@@ -68,9 +72,9 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
     // --- Stage 1 ---
     const stage1 = {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: '<p>ステージ1</p>' +
-                '<div style="font-size:80px;">🔺　　　🔶</div>' +
-                '<p>左: Fキー | 右: Jキー</p>',
+      stimulus: `<div style="font-size:${TEXT_SIZE}"><p>ステージ1</p>` +
+                `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔺　　🔶</div>` +
+                `<p>左: Fキー | 右: Jキー</p></div>`,
       choices: ['f','j'],
       data: { stage: 1, trial: i + 1 },
       on_finish: function(data) {
@@ -92,9 +96,9 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
         const state = prev.state2;
         console.log(`DEBUG stage2 sees state2=${state}`);
         const symbols = [['🔵','🟡'], ['🟢','🟣']];
-        return `<p>ステージ2 - 状態 ${state}</p>` +
-               `<div style="font-size:80px;">${symbols[state][0]}　　　${symbols[state][1]}</div>` +
-               `<p>左: Fキー | 右: Jキー</p>`;
+        return `<div style="font-size:${TEXT_SIZE}"><p>ステージ2 - 状態 ${state}</p>` +
+               `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">${symbols[state][0]}　　${symbols[state][1]}</div>` +
+               `<p>左: Fキー | 右: Jキー</p></div>`;
       },
       choices: ['f','j'],
       data: { stage: 2, trial: i + 1 },
@@ -117,29 +121,30 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function() {
         const last = jsPsych.data.get().last(1).values()[0];
-        return last.reward
-          ? '<p>💰報酬を得ました！</p>'
-          : '<p>🙁報酬はありません</p>';
+        const msg = last.reward
+          ? '💰報酬を得ました！'
+          : '🙁報酬はありません';
+        return `<div style="font-size:${TEXT_SIZE}"><p>${msg}</p></div>`;
       },
       choices: [' '],
-      prompt: '<p>続行するにはスペースキーを押してください。</p>'
+      prompt: `<div style="font-size:${TEXT_SIZE}"><p>続行するにはスペースキーを押してください。</p></div>`
     };
 
     // --- 記憶賭け試行パーツ ---
     const pre_memory = {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: '<p>次に記憶テストと賭けを行います。</p>' +
-                '<p>直前のステージ1で選択したシンボルを思い出してください。</p>',
+      stimulus: `<div style="font-size:${TEXT_SIZE}"><p>次に記憶テストと賭けを行います。</p>` +
+                `<p>直前のステージ1で選択したシンボルを思い出してください。</p></div>`,
       choices: [' '],
-      prompt: '<p>スペースキーを押して続行</p>',
+      prompt: `<div style="font-size:${TEXT_SIZE}"><p>スペースキーを押して続行</p></div>`,
       data: { stage: 'pre_memory', trial: i + 1 }
     };
 
     const memory_trial = {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: '<p>記憶テスト：直前のステージ1で選択したのは？</p>' +
-                '<div style="font-size:80px;">🔺　　　🔶</div>' +
-                '<p>左: Fキー | 右: Jキー</p>',
+      stimulus: `<div style="font-size:${TEXT_SIZE}"><p>記憶テスト：直前のステージ1で選択したのは？</p>` +
+                `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔺　　🔶</div>` +
+                `<p>左: Fキー | 右: Jキー</p></div>`,
       choices: ['f','j'],
       data: { stage: 'memory', trial: i + 1 },
       on_finish: function(data) {
@@ -153,13 +158,11 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
 
     const gamble = {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: '<p>記憶の正しさにポイントを賭けますか？</p>' +
-                '<div style="margin-top:40px;">Y: はい</div>' +
-                '<div style="margin-top:20px;">N: いいえ</div>',
+      stimulus: `<div style="font-size:${TEXT_SIZE}"><p>記憶の正しさにポイントを賭けますか？</p>` +
+                `<div style="margin:20px 0; font-size:${TEXT_SIZE}">Y: はい　 N: いいえ</div></div>`,
       choices: ['y','n'],
       data: { stage: 'gamble', trial: i + 1 },
       on_finish: function(data) {
-        // stage='memory' の最後の試行を取得
         const mem = jsPsych.data.get().filter({ stage: 'memory' }).last(1).values()[0] || {};
         const gambleFlag = data.response === 'y';
         const win = gambleFlag && mem.memory_correct;
@@ -173,10 +176,10 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
     // --- 通常試行に戻る案内画面 ---
     const post_memory = {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: '<p>これで記憶賭け試行は終了です。</p>' +
-                '<p>通常試行に戻ります。</p>',
+      stimulus: `<div style="font-size:${TEXT_SIZE}"><p>これで記憶賭け試行は終了です。</p>` +
+                `<p>通常試行に戻ります。</p></div>`,
       choices: [' '],
-      prompt: '<p>スペースキーを押して続行してください。</p>',
+      prompt: `<div style="font-size:${TEXT_SIZE}"><p>スペースキーを押して続行してください。</p></div>`,
       data: { stage: 'post_memory', trial: i + 1 }
     };
 
