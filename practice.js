@@ -162,7 +162,7 @@ const instructions = [
   // 2. ステージ1 操作説明と練習（Fキーのみ）
   {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: 
+    stimulus: `
       <div style="font-size:${TEXT_SIZE}">
         <p>記憶テスト：直前のステージ1で選択したのは？</p>
        <div style="display:flex; justify-content:center; margin-bottom:40px;">
@@ -171,7 +171,7 @@ const instructions = [
       </div>
       <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:40px;">
         <p>左: Fキー | 右: Jキー</p>
-      </div>
+      </div>`
     ,
     choices: ['f','j']
   },
