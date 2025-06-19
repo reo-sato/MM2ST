@@ -101,6 +101,7 @@ const instructions = [
     stimulus: `
       <div style="font-size:${TEXT_SIZE}">
         <p>報酬の有無が提示された後、ステージ1に戻ります。</p>
+<p>💰 報酬を得ました！</p>
          <p>次へ進むにはスペースキーを押してください。</p>
       </div>
     `,
@@ -144,6 +145,7 @@ const instructions = [
     stimulus: `
       <div style="font-size:${TEXT_SIZE}">
         <p>報酬の有無が提示された後、ステージ1に戻ります。</p>
+        <p>💰 1ポイントの報酬を得ました！</p>
          <p>次へ進むにはスペースキーを押してください。</p>
       </div>
     `,
@@ -162,17 +164,44 @@ const instructions = [
     `,
     choices: ['次へ']
   },
+  // 2. ステージ1 操作説明と練習（Fキーのみ）
+  {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div style="font-size:${TEXT_SIZE}">
+        <p>記憶テスト：直前のステージ1で選択したのは？</p>
+        <div style="font-size:${SYMBOL_SIZE}; margin:20px 0; display:flex; justify-content:center;">
+          <span style="margin:0 20px;">🔴</span><span style="margin:0 20px;">🔵</span>
+        </div>
+        <p>左: Fキー | 右: Jキー</p>
+      </div>
+    `,
+    choices: ['f','j']
+  },
+  {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `<div style="font-size:${TEXT_SIZE}"><p>記憶の正しさに1ポイントを賭けますか？</p><p>Y: はい　 N: いいえ</p></div>`,
+      choices: ['y','n'],
+      data: { phase:'practice', stage:'gamble', trial:j+1 },
+      on_finish: function(data) {
+        const mem = jsPsych.data.get().filter({ phase:'practice', stage:'memory', trial:j+1 }).last(1).values()[0]||{};
+        const flag = data.response==='y';
+        data.gamble_win = flag&&mem.memory_correct;
+        if(data.gamble_win) total_points++;
+      }
   // 7. 本練習開始（ボタン）
   {
     type: jsPsychHtmlButtonResponse,
     stimulus: `
       <div style="font-size:${TEXT_SIZE}">
+      <p>記憶テストに対しては、報酬のフィードバックはありません。/p>
         <p>それでは、練習を始めます！</p>
-        <p>練習中の報酬は本報酬に影響しません。</p>
+        <p>練習中の報酬は本番に影響しません。</p>
       </div>
     `,
     choices: ['開始']
   }
+  
 ];
 
 timeline.push(...instructions);
@@ -188,7 +217,7 @@ for (let j = 0; j < practice_trials; j++) {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
       <div style="font-size:${TEXT_SIZE}">
-        <p>ステージ1では、2つのシンボルのうちどちらかを選択します。</p>
+        
         <p>ステージ1</p>
         <div style="font-size:${SYMBOL_SIZE}; margin:20px 0; display:flex; justify-content:center;">
           <span style="margin:0 20px;">🔴</span><span style="margin:0 20px;">🔵</span>
@@ -211,9 +240,7 @@ for (let j = 0; j < practice_trials; j++) {
       const prev = jsPsych.data.get().filter({ phase:'practice', stage:1, trial:j+1 }).last(1).values()[0] || {};
       const state = prev.state2 || 0;
       const symbols_desc = `
-        <p>ステージ2では、2対のシンボルのうち1対が提示されます。どのシンボルの組が提示されるかは確率的に決まりますが、ステージ1の選択によって、提示されやすさが変わります。</p>
-        <p>ステージ2では、2つのシンボルから一方を選択します。それぞれのシンボルに対して報酬の1ポイントがどのような確率で得られるかは決まっており、この確率はゆっくりと変化していくため、今現在どのシンボルを選択することが報酬獲得につながりやすいのかを学習していく必要があります。</p>
-      `;
+        `;
       const symbols = [['🟢','🟡'], ['🟣','🟠']];
       return `
         <div style="font-size:${TEXT_SIZE}">
