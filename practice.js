@@ -41,38 +41,22 @@ function updateRewardProbs() {
 // --- タイムライン定義 ---
 const timeline = [];
 
+// ベースライン（注視ターゲット）の定義
+const baseline = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: '<div style="font-size:48px; text-align:center;">+</div>',
+  choices: [],
+  trial_duration: 1000
+};
+
 // 1. インストラクション（課題構造の説明）
 const instructions = [
-  {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: `<div style="font-size:${TEXT_SIZE}; text-align:center;"><p>ようこそ！このタスクは、一試行当たり2段階の選択と、時折記憶テストがあります。</p><p>まずは課題構造を練習しましょう。</p></div>`,
-    choices: ['次へ']
-  },
-  {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: `<div style="font-size:${TEXT_SIZE}"><p>ステージ1: 🔺 または 🔶 のどちらかを選択します。</p></div>`,
-    choices: ['次へ']
-  },
-  {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: `<div style="font-size:${TEXT_SIZE}"><p>ステージ2: ステージ1の選択をもとに2つのシンボルが提示され、再度選択します。</p></div>`,
-    choices: ['次へ']
-  },
-  {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: `<div style="font-size:${TEXT_SIZE}"><p>報酬: 選択したシンボルに応じて報酬が得られます（確率はゆっくり変化）。</p></div>`,
-    choices: ['次へ']
-  },
-  {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: `<div style="font-size:${TEXT_SIZE}"><p>記憶テスト: 時折ステージ1で選択したシンボルを思い出し、ポイントを賭けます。</p></div>`,
-    choices: ['次へ']
-  },
-  {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: `<div style="font-size:${TEXT_SIZE}; text-align:center;"><p>それでは練習を始めます。</p><p>練習中の結果は本試験に影響しません。</p></div>`,
-    choices: ['開始']
-  }
+  { type: jsPsychHtmlButtonResponse, stimulus: `<div style="font-size:${TEXT_SIZE}; text-align:center;"><p>ようこそ！このタスクは、一試行当たり2段階の選択と、時折記憶テストがあります。</p><p>まずは課題構造を練習しましょう。</p></div>`, choices: ['次へ'] },
+  { type: jsPsychHtmlButtonResponse, stimulus: `<div style="font-size:${TEXT_SIZE}"><p>ステージ1: 🔺 または 🔶 のどちらかを選択します。</p></div>`, choices: ['次へ'] },
+  { type: jsPsychHtmlButtonResponse, stimulus: `<div style="font-size:${TEXT_SIZE}"><p>ステージ2: ステージ1の選択をもとに2つのシンボルが提示され、再度選択します。</p></div>`, choices: ['次へ'] },
+  { type: jsPsychHtmlButtonResponse, stimulus: `<div style="font-size:${TEXT_SIZE}"><p>報酬: 選択したシンボルに応じて報酬が得られます（確率はゆっくり変化）。</p></div>`, choices: ['次へ'] },
+  { type: jsPsychHtmlButtonResponse, stimulus: `<div style="font-size:${TEXT_SIZE}"><p>記憶テスト: 時折ステージ1で選択したシンボルを思い出し、ポイントを賭けます。</p></div>`, choices: ['次へ'] },
+  { type: jsPsychHtmlButtonResponse, stimulus: `<div style="font-size:${TEXT_SIZE}; text-align:center;"><p>それでは練習を始めます。</p><p>練習中の結果は本試験に影響しません。</p></div>`, choices: ['開始'] }
 ];
 timeline.push(...instructions);
 
@@ -127,14 +111,15 @@ for (let j = 0; j < practice_trials; j++) {
     choices: [' ']
   });
 
-  // --- 記憶賭け挿入 ---
+  // --- 記憶課題パート ---
   if (j+1 === insert_memory) {
-    // 記憶テスト前案内 (練習用)
+    // 記憶テスト前の説明（元コード保持）
     timeline.push({
       type: jsPsychHtmlKeyboardResponse,
       stimulus: `<div style="font-size:${TEXT_SIZE}"><p>次に記憶テストと賭けを行います。</p><p>直前のステージ1で選択したシンボルを思い出してください。</p></div>`,
       choices: [' ']
     });
+
     // 記憶テスト
     timeline.push({
       type: jsPsychHtmlKeyboardResponse,
@@ -146,6 +131,7 @@ for (let j = 0; j < practice_trials; j++) {
         data.memory_correct=(actual=== (data.response==='f'?0:1));
       }
     });
+
     // 賭け
     timeline.push({
       type: jsPsychHtmlKeyboardResponse,
@@ -159,17 +145,21 @@ for (let j = 0; j < practice_trials; j++) {
         if(data.gamble_win) total_points++;
       }
     });
-    // 復帰案内
+
+    // 記憶テスト後の復帰説明（元コード保持）
     timeline.push({
       type: jsPsychHtmlKeyboardResponse,
       stimulus:`<div style="font-size:${TEXT_SIZE}"><p>これで記憶賭け試行は終了です。</p><p>通常試行に戻ります。</p></div>`,
       choices:[' ']
     });
   }
+
+  // --- ベースライン画面（注視ターゲット） ---
+  timeline.push(baseline);
 }
 
 // 3. 練習終了メッセージ
-timeline.push({
+ timeline.push({
   type: jsPsychHtmlButtonResponse,
   stimulus:`<div style="font-size:${TEXT_SIZE}"><p>練習終了！本番に移ります。</p></div>`,
   choices:['開始']
