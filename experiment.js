@@ -1,4 +1,4 @@
-// JavaScript source code with “press space to continue” prompts
+// JavaScript source code with corrected logging
 
 let total_reward = 0;
 let total_points = 0;
@@ -52,7 +52,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
     const i = block * trials_per_block + j;
     updateRewardProbs();
 
-    // --- Stage 1 ---
+    // Stage 1
     const stage1 = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: '<p>ステージ1</p>' +
@@ -67,17 +67,17 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
                       ? (common ? 0 : 1)
                       : (common ? 1 : 0);
         data.transition = common ? 'common' : 'rare';
-        console.log(`DEBUG stage1 trial=${data.trial} choice_stage1=${data.choice_stage1} common=${common} state2=${data.state2}`);
+        console.log(`DEBUG stage1 trial=${data.trial} choice=${data.choice_stage1} common=${common} state2=${data.state2}`);
       }
     };
 
-    // --- Stage 2 ---
+    // Stage 2
     const stage2 = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function() {
         const prev = jsPsych.data.get().last(1).values()[0];
         const state = prev?.state2 ?? 0;
-        console.log(`DEBUG stage2 trial=${prev.trial} sees state2=${state}`);
+        console.log(`DEBUG stage2 sees state2=${state}`);
         const symbols = [['🔵','🟡'], ['🟢','🟣']];
         return `<p>ステージ2 - 状態 ${state}</p>` +
                `<div style="font-size:80px;">${symbols[state][0]}　　　${symbols[state][1]}</div>` +
@@ -95,38 +95,35 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
         data.choice_stage2 = choice;
         data.reward = reward;
         total_reward += reward;
-        console.log(`DEBUG stage2 trial=${data.trial} choice=${choice} reward=${reward}`);
+        console.log(`DEBUG stage2 choice=${choice} reward=${reward}`);
       }
     };
 
-    // --- Feedback reminding to press SPACE ---
+    // Feedback with space requirement
     const feedback = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function() {
         const last = jsPsych.data.get().last(1).values()[0];
         const reward = last?.reward ?? 0;
-        return reward
-               ? '<p>💰報酬を得ました！</p>'
-               : '<p>🙁報酬はありません</p>';
+        return reward ? '<p>💰報酬を得ました！</p>' : '<p>🙁報酬はありません</p>';
       },
-      choices: [' '],  // spacebar
+      choices: [' '],
       prompt: '<p>続行するにはスペースキーを押してください。</p>'
     };
 
     block_timeline.push(stage1, stage2, feedback);
 
-    // --- Pre-memory instruction (when j == insert_index) ---
+    // Pre-memory explanation
     if (j === insert_index) {
       const pre_memory = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus: '<p>このあと記憶テストと賭けを行います。</p>' +
-                  '<p>直前のステージ1で選んだ選択肢を思い出し、回答＆賭けてください。</p>',
+        stimulus: '<p>このあと記憶テストと賭け試行を行います。</p>' +
+                  '<p>ステージ1での選択を思い出して回答し、ポイントを賭けてください。</p>',
         choices: [' '],
-        prompt: '<p>テストを続けるにはスペースキーを押してください。</p>',
+        prompt: '<p>続行するにはスペースキーを押してください。</p>',
         data: { stage: 'pre_memory' }
       };
 
-      // --- Memory test ---
       const memory_trial = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: '<p>記憶テスト：直前のステージ1で選択したのは？</p>' +
@@ -139,16 +136,15 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
           const resp = data.response === 'f' ? 0 : 1;
           data.memory_response = resp;
           data.memory_correct = actual === resp;
-          console.log(`DEBUG memory trial: actual=${actual}, response=${resp}, correct=${data.memory_correct}`);
+          console.log(`DEBUG memory actual=${actual} resp=${resp} correct=${data.memory_correct}`);
         }
       };
 
-      // --- Gamble prompt (Y/N vertically) ---
       const gamble = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: '<p>記憶の正しさにポイントを賭けますか？</p>' +
-                  '<div style="margin-top: 40px;">Y: はい</div>' +
-                  '<div style="margin-top: 20px;">N: いいえ</div>',
+                  '<div style="margin-top:40px;">Y: はい</div>' +
+                  '<div style="margin-top:20px;">N: いいえ</div>',
         choices: ['y','n'],
         data: { stage: 'gamble' },
         on_finish: function(data) {
@@ -158,7 +154,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
           data.gambled = gambleFlag;
           data.gamble_win = win;
           if (win) total_points++;
-          console.log(`DEBUG gamble trial: gambled=${gambleFlag}, win=${win}`);
+          console.log(`DEBUG gamble gambled=${gambleFlag} win=${win}`);
         }
       };
 
@@ -182,9 +178,9 @@ firebase.auth().signInAnonymously().then(() => {
         total_points: total_points,
         data: JSON.parse(d)
       }).then(() => {
-        alert(`✅ データ保存完了\n報酬合計: ${total_reward}\nポイント合計: ${total_points}`);
+        alert(`✅ 保存完了\n報酬合計: ${total_reward}\nポイント合計: ${total_points}`);
       }).catch(e => {
-        alert('❌ 保存失敗: ' + e.message);
+        alert('❌ 保存失敗: '+e.message);
       });
     }
   });
