@@ -85,8 +85,8 @@ const instructions = [
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
       <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center; margin-bottom:20px;">
-        <p>ステージ2でも、2つのシンボルから一方を選択します。</p>
-        <p>それぞれのシンボルに対して設定された報酬獲得の確率はゆっくり変化するため、どの選択が報酬獲得につながりやすいかを学習していく必要があります。</p>
+        <p>ステージ2でも、2つのシンボルから一方を選択すると、それぞれのシンボルに対して設定された確率に沿って1または0ポイントの報酬が提示されます。</p>
+        <p>これらの報酬確率はゆっくりと変化するため、どの選択が報酬獲得につながりやすいかを学習していく必要があります。</p>
         <p>ここでは試しに F を押してみてください。</p>
       </div>
       <div style="display:flex; justify-content:center; margin-bottom:40px;">
@@ -135,6 +135,7 @@ const instructions = [
       <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center; margin-bottom:20px;">
         <p>実は、ステージ2では、ステージ1の選択に応じて2対のシンボルのうち1対が提示されます。</p>
         <p>どのシンボルの組が提示されるかは確率的に決まりますが、ステージ1の選択によって、どちらのシンボルの組が提示されやすいかは決まっています。</p>
+<p>この組み合わせの確率も学習していく必要があります。</p>
         <p>ここでは F または J を押してみてください。</p>
       </div>
       <div style="display:flex; justify-content:center; margin-bottom:40px;">
