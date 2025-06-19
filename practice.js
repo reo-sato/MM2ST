@@ -138,8 +138,9 @@ const instructions = [
   {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `<div style="font-size:${TEXT_SIZE}">
-<p>直近のステージ1で選択したのは？</p>
-<p></p>
+<p>直近のステージ1で選択したのは？</p>`
++`
+<p>　</p>
 ` +
                 `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔴　　🔵</div>` +
                 `<p>左: Fキー | 右: Jキー</p></div>`,
@@ -236,12 +237,10 @@ for (let j = 0; j < practice_trials; j++) {
   if (j+1 === insert_memory) {
     timeline.push({
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: `
-        <div style="font-size:${TEXT_SIZE}">
-          <p>また、時折挟まる記憶テストでは、直近のステージ1でどのシンボルを選択したか思い出してもらいます。さらに、その回答に対して通常試行と共通のポイントを賭けることができます。賭けた場合には、正解→+1ポイント　不正解→-1ポイントとなり、賭けなかった場合には正解→0ポイント　不正解→0ポイントとなります。</p>
-        </div>
-      `,
-      choices: [' ']
+      stimulus:`<div style="font-size:${TEXT_SIZE}"><p>次に記憶テストと賭けを行います。</p>` +
+                `<p>直前のステージ1で選択したシンボルを思い出してください。</p></div>`,
+      choices: [' '],
+prompt: `<div style="font-size:${TEXT_SIZE}"><p>スペースキーを押して続行</p></div>`,
     });
     // 記憶テスト
     timeline.push({
