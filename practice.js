@@ -14,8 +14,7 @@ const jsPsych = initJsPsych();
 const TEXT_SIZE = '24px';
 const SYMBOL_SIZE = '120px';
 
-// 報酬確率の初期値と更新関数
-let reward_probs = { state0: [0.5, 0.5], state1: [0.5, 0.5] };
+// 報酬確率の初期値と更新関数\let reward_probs = { state0: [0.5, 0.5], state1: [0.5, 0.5] };
 const step_size = 0.025;
 const reward_bounds = [0.25, 0.75];
 function normalRandom(mean = 0, std = 1) {
@@ -91,7 +90,9 @@ for (let j = 0; j < practice_trials; j++) {
   timeline.push({
     type: jsPsychHtmlKeyboardResponse,
     stimulus: function() {
-      const prev = jsPsych.data.get().filter({ phase: 'practice', stage:1, trial: j+1 }).last(1).values()[0];
+      const prev = jsPsych.data.get()
+                     .filter({ phase: 'practice', stage:1, trial: j+1 })
+                     .last(1).values()[0];
       const state = prev.state2;
       const symbols = [['🔵','🟡'], ['🟢','🟣']];
       return `<div style="font-size:${TEXT_SIZE}"><p>ステージ2 - 状態 ${state}</p>` +
@@ -101,9 +102,17 @@ for (let j = 0; j < practice_trials; j++) {
     choices: ['f','j'],
     data: { phase: 'practice', stage: 2, trial: j+1 },
     on_finish: function(data) {
+      // ステージ1の state2 を取得してデータに保存
+      const prev = jsPsych.data.get()
+                     .filter({ phase: 'practice', stage:1, trial: j+1 })
+                     .last(1).values()[0];
+      const state = prev.state2;
+      data.state2 = state;
+
+      // 報酬確率更新および報酬生成
       updateRewardProbs();
       const choice = data.response === 'f' ? 0 : 1;
-      const rp = reward_probs[`state${data.state2}`][choice];
+      const rp = reward_probs[`state${state}`][choice];
       const reward = Math.random() < rp ? 1 : 0;
       data.choice_stage2 = choice;
       data.reward = reward;
