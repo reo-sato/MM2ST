@@ -162,7 +162,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
     };
     const gamble = {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: `<div style="font-size:${TEXT_SIZE}"><p>記憶の正しさにポイントを賭けますか？</p>` +
+      stimulus: `<div style="font-size:${TEXT_SIZE}"><p>先ほどの回答にポイントを賭けますか？</p>` +
                 `<div style="margin:20px 0; font-size:${TEXT_SIZE}">Y: はい　 N: いいえ</div></div>`,
       choices: ['y','n'],
       data: { stage: 'gamble', trial: i + 1 },
