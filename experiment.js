@@ -23,9 +23,9 @@ const jsPsych = initJsPsych({
   }
 });
 
-// 表示サイズ設定（必要に応じて数値を調整）
-const TEXT_SIZE = '36px';
-const SYMBOL_SIZE = '180px';
+// 表示サイズ設定（必要に応じて調整）
+const TEXT_SIZE = '24px';
+const SYMBOL_SIZE = '120px';
 
 const num_trials = 200;
 const trials_per_block = 5;
@@ -84,7 +84,6 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
                       ? (common ? 0 : 1)
                       : (common ? 1 : 0);
         data.transition = common ? 'common' : 'rare';
-        console.log(`DEBUG stage1 trial=${data.trial} state2=${data.state2}`);
       }
     };
 
@@ -94,7 +93,6 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       stimulus: function() {
         const prev = jsPsych.data.get().filter({ stage: 1, trial: i + 1 }).last(1).values()[0];
         const state = prev.state2;
-        console.log(`DEBUG stage2 sees state2=${state}`);
         const symbols = [['🔵','🟡'], ['🟢','🟣']];
         return `<div style="font-size:${TEXT_SIZE}"><p>ステージ2 - 状態 ${state}</p>` +
                `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">${symbols[state][0]}　　${symbols[state][1]}</div>` +
@@ -112,11 +110,10 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
         data.choice_stage2 = choice;
         data.reward = reward;
         total_reward += reward;
-        console.log(`DEBUG stage2 trial=${data.trial} choice=${choice} reward=${reward}`);
       }
     };
 
-    // --- Feedback ---
+    // --- Feedback（報酬提示）---
     const feedback = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function() {
@@ -127,7 +124,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
         return `<div style="font-size:${TEXT_SIZE}"><p>${msg}</p></div>`;
       },
       choices: [' '],
-      prompt: `<div style="font-size:${TEXT_SIZE}"><p>続行するにはスペースキーを押してください。</p></div>`
+      prompt: `<div style="font-size:${TEXT_SIZE}"><p>スペースキーを押して続行</p></div>`
     };
 
     // --- 記憶賭け試行パーツ ---
@@ -139,7 +136,6 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       prompt: `<div style="font-size:${TEXT_SIZE}"><p>スペースキーを押して続行</p></div>`,
       data: { stage: 'pre_memory', trial: i + 1 }
     };
-
     const memory_trial = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: `<div style="font-size:${TEXT_SIZE}"><p>記憶テスト：直前のステージ1で選択したのは？</p>` +
@@ -152,10 +148,8 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
         const resp = data.response === 'f' ? 0 : 1;
         data.memory_response = resp;
         data.memory_correct = (actual === resp);
-        console.log(`DEBUG memory trial=${data.trial} correct=${data.memory_correct}`);
       }
     };
-
     const gamble = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: `<div style="font-size:${TEXT_SIZE}"><p>記憶の正しさにポイントを賭けますか？</p>` +
@@ -169,11 +163,8 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
         data.gambled = gambleFlag;
         data.gamble_win = win;
         if (win) total_points++;
-        console.log(`DEBUG gamble trial=${data.trial} gambled=${data.gambled} win=${data.gamble_win}`);
       }
     };
-
-    // --- 通常試行に戻る案内画面 ---
     const post_memory = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: `<div style="font-size:${TEXT_SIZE}"><p>これで記憶賭け試行は終了です。</p>` +
@@ -183,12 +174,14 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
       data: { stage: 'post_memory', trial: i + 1 }
     };
 
-    // ==== タイムラインへの追加 ====
-    block_timeline.push(stage1, stage2);
+    // ==== タイムライン構築 ====
     if (j === insert_index) {
-      block_timeline.push(pre_memory, memory_trial, gamble, post_memory);
+      // 記憶賭けを挿入する試行：stage1→stage2→feedback→memoryパーツ→post_memory
+      block_timeline.push(stage1, stage2, feedback, pre_memory, memory_trial, gamble, post_memory);
+    } else {
+      // 通常試行：stage1→stage2→feedback
+      block_timeline.push(stage1, stage2, feedback);
     }
-    block_timeline.push(feedback);
   }
 
   timeline.push(...block_timeline);
