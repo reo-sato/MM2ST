@@ -128,9 +128,7 @@ const instructions = [
         <p>実は、ステージ2では、ステージ1の選択に応じて2対のシンボルのうち1対が提示されます。</p>
         <p>どのシンボルの組が提示されるかは確率的に決まりますが、ステージ1の選択によって、どちらのシンボルの組が提示されやすいかは決まっています。</p>
         <p>ここでは F を押してみてください。</p>
-        <div style="font-size:${SYMBOL_SIZE}; margin:20px 0; display:flex; justify-content:center;">
-          <!-- 例: 🔴→🟢🟡、🔵→🟣🟠 -->
-          <span style="margin:0 20px;">🟢　🟡</span><span style="margin:0 20px;">🟣　🟠</span>
+    
         <p>ステージ2</p>
         <div style="font-size:${SYMBOL_SIZE}; margin:20px 0; display:flex; justify-content:center;">
           <span style="margin:0 20px;">🟣</span><span style="margin:0 20px;">🟠</span>
