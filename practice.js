@@ -159,6 +159,28 @@ const instructions = [
     `,
     choices: ['次へ']
   },
+  // 2. ステージ1 操作説明と練習（Fキーのみ）
+  {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: 
+      <div style="font-size:${TEXT_SIZE}">
+        <p>記憶テスト：直前のステージ1で選択したのは？</p>
+       <div style="display:flex; justify-content:center; margin-bottom:40px;">
+        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔴</span>
+        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔵</span>
+      </div>
+      <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:40px;">
+        <p>左: Fキー | 右: Jキー</p>
+      </div>
+    ,
+    choices: ['f','j']
+  },
+{
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: <div style="font-size:${TEXT_SIZE}"><p>先ほどの回答に1ポイントを賭けますか？</p><p>Y: はい　 N: いいえ</p></div>,
+      choices: ['y','n'],
+      
+      },
   // 練習開始
   {
     type: jsPsychHtmlButtonResponse,
