@@ -20,7 +20,7 @@ const step_size = 0.025;
 const reward_bounds = [0.25, 0.75];
 
 // 正規乱数生成関数
-def normalRandom(mean = 0, std = 1) {
+function normalRandom(mean = 0, std = 1) {
   let u = Math.random(), v = Math.random();
   return mean + std * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
 }
@@ -41,7 +41,7 @@ function updateRewardProbs() {
 // --- タイムライン定義 ---
 const timeline = [];
 
-// 1. インストラクション（説明文はそのまま、レイアウト強化）
+// 1. インストラクション（レイアウト強化済み）
 const instructions = [
   {
     type: jsPsychHtmlButtonResponse,
@@ -125,5 +125,24 @@ const instructions = [
 timeline.push(...instructions);
 
 // 2. 以下、実際の課題部分（変更なし）
-// （省略）
+const practice_trials = 6;
+const insert_memory = 3;
+for (let j = 0; j < practice_trials; j++) {
+  // --- ステージ1 ---
+  timeline.push({ type: jsPsychHtmlKeyboardResponse, /* 省略 */ });
+  // --- ステージ2 ---
+  timeline.push({ type: jsPsychHtmlKeyboardResponse, /* 省略 */ });
+  // --- フィードバック ---
+  timeline.push({ type: jsPsychHtmlKeyboardResponse, /* 省略 */ });
+  // --- 記憶賭け挿入 ---
+  if (j+1 === insert_memory) {
+    timeline.push({ type: jsPsychHtmlKeyboardResponse, /* 省略 */ });
+    timeline.push({ type: jsPsychHtmlKeyboardResponse, /* 省略 */ });
+    timeline.push({ type: jsPsychHtmlKeyboardResponse, /* 省略 */ });
+  }
+}
+// 3. 練習終了メッセージ
+timeline.push({ type: jsPsychHtmlButtonResponse, /* 省略 */ });
+
+// 実行
 jsPsych.run(timeline);
