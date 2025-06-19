@@ -70,27 +70,20 @@ const instructions = [
 <p>ステージ1では、2つのシンボルのうちどちらかを、左ならば F、右ならば J のキーを押して選択します。</p>
         <p>ここでは試しに F を押してみてください。</p>
 <p>ステージ1</p>` +
-                `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔺　　🔶</div>` +
+                `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔴　　🔵</div>` +
                 `<p>左: Fキー | 右: Jキー</p></div>`,
     choices: ['f']
   },
   // ステージ2 説明＋練習
   {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: `
-      <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center; margin-bottom:20px;">
-        <p>ステージ2でも、2つのシンボルから一方を選択すると、それぞれのシンボルに対して設定された確率に沿って1または0ポイントの報酬が提示されます。</p>
-        <p>これらの報酬確率はゆっくりと変化するため、どの選択が報酬獲得につながりやすいかを学習していく必要があります。</p>
+    stimulus: 
+`<div style="font-size:${TEXT_SIZE}">
+<p>ステージ2でも、2つのシンボルから一方を選択すると、それぞれのシンボルに対して設定された確率に沿って1または0ポイントの報酬が提示されます。</p>
         <p>ここでは試しに F を押してみてください。</p>
-      </div>
-      <div style="display:flex; justify-content:center; margin-bottom:40px;">
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🟢</span>
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🟡</span>
-      </div>
-      <div style="font-size:${TEXT_SIZE}; text-align:center;	margin-bottom:40px;">
-        <p>左: Fキー | 右: Jキー</p>
-      </div>
-    `,
+<p>ステージ2</p>` +
+                `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🟢　　🟡</div>` +
+                `<p>左: Fキー | 右: Jキー</p></div>`,
     choices: ['f']
   },
   // 報酬提示練習
@@ -108,38 +101,26 @@ const instructions = [
   // ステージ1 再練習
   {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: `
-      <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center; margin-bottom:20px;">
-        <p>もう一度 F を押してみてください。</p>
-      </div>
-      <div style="display:flex; justify-content:center; margin-bottom:40px;">
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔴</span>
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔵</span>
-      </div>
-      <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:40px;">
-        <p>左: Fキー | 右: Jキー</p>
-      </div>
-    `,
+    stimulus: `<div style="font-size:${TEXT_SIZE}">
+<p>もう一度fを押してみてください。</p>
+<p>ステージ1</p>` +
+                `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔴　　🔵</div>` +
+                `<p>左: Fキー | 右: Jキー</p></div>`,
     choices: ['f']
   },
   // 遷移構造説明＋練習
   {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: `
-      <div style="padding:40px 20px; font-size:${TEXT_SIZE}; text-align:center; margin-bottom:20px;">
-        <p>実は、ステージ2では、ステージ1の選択に応じて2対のシンボルのうち1対が提示されます。</p>
+    stimulus: 
+`<div style="font-size:${TEXT_SIZE}">
+<p>実は、ステージ2では、ステージ1の選択に応じて2対のシンボルのうち1対が提示されます。</p>
         <p>どのシンボルの組が提示されるかは確率的に決まりますが、ステージ1の選択によって、どちらのシンボルの組が提示されやすいかは決まっています。</p>
         <p>この組み合わせの確率も学習していく必要があります。</p>
         <p>ここでは F または J を押してみてください。</p>
-      </div>
-      <div style="display:flex; justify-content:center; margin-bottom:40px;">
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🟣</span>
-        <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🟠</span>
-      </div>
-      <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:40px;">
-        <p>左: Fキー | 右: Jキー</p>
-      </div>
-    `,
+<p>ステージ2</p>` +
+                `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🟣　　🟠</div>` +
+                `<p>左: Fキー | 右: Jキー</p></div>`
+,
     choices: ['f','j']
   },
   // 記憶賭けテスト説明
@@ -156,18 +137,11 @@ const instructions = [
   // 2. ステージ1 操作説明と練習（Fキーのみ）
   {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: `
-      <div style="font-size:${TEXT_SIZE}">
-        <p>記憶テスト：直前のステージ1で選択したのは？</p>
-        <div style="display:flex; justify-content:center; margin-bottom:40px;">
-          <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔴</span>
-          <span style="font-size:${SYMBOL_SIZE}; margin:0 20px;">🔵</span>
-        </div>
-        <div style="font-size:${TEXT_SIZE}; text-align:center; margin-bottom:40px;">
-          <p>左: Fキー | 右: Jキー</p>
-        </div>
-      </div>
-    `,
+    stimulus: `<div style="font-size:${TEXT_SIZE}">
+<p>直近のステージ1で選択したのは？</p>
+` +
+                `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔴　　🔵</div>` +
+                `<p>左: Fキー | 右: Jキー</p></div>`,
     choices: ['f','j']
   },
   {
