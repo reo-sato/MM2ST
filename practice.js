@@ -177,7 +177,7 @@ const instructions = [
   },
 {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: <div style="font-size:${TEXT_SIZE}"><p>先ほどの回答に1ポイントを賭けますか？</p><p>Y: はい　 N: いいえ</p></div>,
+      stimulus: `<div style="font-size:${TEXT_SIZE}"><p>先ほどの回答に1ポイントを賭けますか？</p><p>Y: はい　 N: いいえ</p></div>`,
       choices: ['y','n'],
       
       },
