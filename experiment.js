@@ -24,8 +24,8 @@ const jsPsych = initJsPsych({
 });
 
 // 表示サイズ設定（必要に応じて数値を調整）
-const TEXT_SIZE = '24px';
-const SYMBOL_SIZE = '120px';
+const TEXT_SIZE = '36px';
+const SYMBOL_SIZE = '180px';
 
 const num_trials = 200;
 const trials_per_block = 5;
