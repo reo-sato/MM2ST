@@ -150,6 +150,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
     const memory_trial = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: `<div style="font-size:${TEXT_SIZE}"><p>記憶テスト：直前のステージ1で選択したのは？</p>` +
+`<div style="font-size:${TEXT_SIZE}"><p> </p>`+
                 `<div style="font-size:${SYMBOL_SIZE};margin:20px 0;">🔺　　🔶</div>` +
                 `<p>左: Fキー | 右: Jキー</p></div>`,
       choices: ['f','j'],
