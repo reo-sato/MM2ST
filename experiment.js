@@ -139,6 +139,7 @@ for (let block = 0; block < num_trials / trials_per_block; block++) {
     const pre_memory = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: `<div style="font-size:${TEXT_SIZE}"><p>次に記憶テストと賭けを行います。</p>` +
+`<div style="font-size:${TEXT_SIZE}"><p> </p>`+
                 `<p>直前のステージ1で選択したシンボルを思い出してください。</p></div>`,
       choices: [' '],
       prompt: `<div style="font-size:${TEXT_SIZE}"><p>スペースキーを押して続行</p></div>`,
